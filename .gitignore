@@ -1,0 +1,45 @@
+# ==========================================
+# 1. PYTHON / FASTAPI (backend)
+# ==========================================
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.db
+*.sqlite3
+
+# ==========================================
+# 2. NODE.JS / WEB & MOBILE (frontend)
+# ==========================================
+node_modules/
+.npm/
+dist/
+build/
+.output/
+.vite/
+.next/
+
+# React Native / Expo
+.expo/
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/build/
+
+# ==========================================
+# 3. SECRETS & ENVIRONMENT VARIABLES
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# 4. IDE & SYSTEM FILES
+# ==========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
