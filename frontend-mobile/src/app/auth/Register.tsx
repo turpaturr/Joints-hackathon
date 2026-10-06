@@ -1,92 +1,129 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import { router } from 'expo-router';
-import { UserPlus } from 'lucide-react-native';
-import { colors, radius, spacing, typography } from '@/theme';
-import { Input } from '@/components/Input';
-import { Button } from '@/components/Button';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
+import { router } from "expo-router";
+import { HeartPulse } from "lucide-react-native";
+import { colors, radius, spacing, typography } from "@/theme";
+import { Input } from "@/components/Input";
+import { Button } from "@/components/Button";
 
 export default function RegisterScreen() {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = () => {
     if (!fullName || !email || !password || !confirmPassword) {
-      setError('Semua kolom wajib diisi');
+      setError("Semua kolom wajib diisi");
       return;
     }
     if (password !== confirmPassword) {
-      setError('Konfirmasi kata sandi tidak cocok');
+      setError("Konfirmasi kata sandi tidak cocok");
       return;
     }
-    setError('');
+    setError("");
     setLoading(true);
 
     setTimeout(() => {
       setLoading(false);
-      router.replace('/auth/Login');
+      router.replace("/auth/Login");
     }, 1200);
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgBase }}>
-      <ScrollView 
-        contentContainerStyle={{ 
-          paddingHorizontal: spacing.screenPadding, 
-          paddingTop: spacing.lg,
-          paddingBottom: spacing.xl,
+      <ScrollView
+        contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: 'center'
+          justifyContent: "center",
+          paddingHorizontal: spacing.screenPadding,
+          paddingVertical: spacing.xl,
         }}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Title */}
-        <View style={{ marginBottom: spacing.lg }}>
-          <Text style={{ ...typography.display, color: colors.primaryDark }}>
-            Buat Akun Baru
+        {/* Brand */}
+        <View style={{ alignItems: "center" }}>
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: radius.full,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <HeartPulse size={28} color="#FFFFFF" strokeWidth={2.2} />
+          </View>
+
+          <Text
+            style={{
+              ...typography.h2,
+              color: colors.textPrimary,
+              marginTop: spacing.md,
+            }}
+          >
+            Connect
           </Text>
-          <Text style={{ ...typography.body, color: colors.textSecondary, marginTop: 4 }}>
-            Mulai langkah awal terapi dan pemulihan Anda bersama Connect.
+          <Text
+            style={{
+              ...typography.body,
+              color: colors.textSecondary,
+              textAlign: "center",
+              marginTop: spacing.xs,
+            }}
+          >
+            Teman setia Anda menjalani terapi mandiri di rumah.
           </Text>
         </View>
 
-        {/* Form Card Surface */}
-        <View style={{
-          backgroundColor: colors.surface,
-          borderRadius: radius.lg,
-          padding: spacing.lg,
-          borderWidth: 1,
-          borderColor: colors.border,
-          shadowColor: colors.primaryDark,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.06,
-          shadowRadius: 8,
-          elevation: 2,
-        }}>
-          {error ? (
-            <View style={{
-              backgroundColor: '#FDE8E8',
-              padding: spacing.md,
-              borderRadius: radius.sm,
-              marginBottom: spacing.md,
-              borderLeftWidth: 4,
-              borderLeftColor: colors.danger,
-            }}>
-              <Text style={{ ...typography.caption, color: colors.danger }}>{error}</Text>
-            </View>
-          ) : null}
+        {/* Greeting */}
+        <View style={{ marginTop: spacing.xl }}>
+          <Text style={{ ...typography.h1, color: colors.textPrimary }}>
+            Buat akun
+          </Text>
+          <Text
+            style={{
+              ...typography.body,
+              color: colors.textSecondary,
+              marginTop: spacing.xs,
+            }}
+          >
+            Mulai langkah awal terapi dan pemulihan Anda.
+          </Text>
+        </View>
 
+        {/* Error */}
+        {error ? (
+          <Text
+            style={{
+              ...typography.caption,
+              color: colors.danger,
+              marginTop: spacing.md,
+            }}
+          >
+            {error}
+          </Text>
+        ) : null}
+
+        {/* Form fields */}
+        {/* Form fields */}
+        <View style={{ marginTop: spacing.lg,}}>
           <Input
             label="Nama Lengkap Pasien"
             placeholder="Contoh: Budi Santoso"
             value={fullName}
             onChangeText={setFullName}
           />
-
           <Input
             label="Email"
             placeholder="nama@email.com"
@@ -95,7 +132,6 @@ export default function RegisterScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-
           <Input
             label="Kata Sandi"
             placeholder="Buat kata sandi aman"
@@ -103,7 +139,6 @@ export default function RegisterScreen() {
             onChangeText={setPassword}
             isPassword
           />
-
           <Input
             label="Konfirmasi Kata Sandi"
             placeholder="Ulangi kata sandi"
@@ -111,18 +146,28 @@ export default function RegisterScreen() {
             onChangeText={setConfirmPassword}
             isPassword
           />
-
-          <View style={{ marginTop: spacing.sm }}>
-            <Button title="Daftar Akun" onPress={handleRegister} loading={loading} />
-          </View>
         </View>
 
-        {/* Footer Link */}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl }}>
+        {/* CTA */}
+        <View style={{ marginTop: spacing.lg }}>
+          <Button title="Daftar" onPress={handleRegister} loading={loading} />
+        </View>
+
+        {/* Footer */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: spacing.xl,
+          }}
+        >
           <Text style={{ ...typography.body, color: colors.textSecondary }}>
-            Sudah memiliki akun?{' '}
+            Sudah punya akun?{" "}
           </Text>
-          <TouchableOpacity onPress={() => router.push('/auth/Login')} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => router.push("/auth/Login")}
+            activeOpacity={0.7}
+          >
             <Text style={{ ...typography.bodyMedium, color: colors.primary }}>
               Masuk
             </Text>
