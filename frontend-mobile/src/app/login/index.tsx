@@ -22,15 +22,15 @@ export default function LoginScreen() {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-bgBase"
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
+      <View className="flex-1 bg-bgBase">
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
         
         {/* ===== HEADER DENGAN CURVE SVG (Sesuai Layout Gambar + Warna DESIGN.md) ===== */}
         <View className="relative bg-primaryDark pt-14 pb-16 items-center justify-center">
           {/* Logo Aplikasi Connect */}
-          <View className="w-20 h-20 bg-surface rounded-full items-center justify-center shadow-md mb-2">
-            <Ionicons name="heart-pulse" size={44} color="#1679AB" />
+          <View className="w-20 h-20 bg-surface rounded-full items-center justify-center mb-2">
+            <Ionicons name="pulse" size={44} color="#1679AB" />
           </View>
           <Text className="text-surface font-poppins-bold text-2xl tracking-wide">
             CONNECT
@@ -144,6 +144,7 @@ export default function LoginScreen() {
 
         </View>
       </ScrollView>
+    </View>
     </KeyboardAvoidingView>
   );
 }

@@ -1,7 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./App.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
+  content: ["./src/**/*.{js,jsx,ts,tsx}", "./App.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
+  safelist: [
+    'border-border',
+    'border-primary',
+    'border-[1.5px]',
+  ],
   theme: {
     extend: {
       colors: {
