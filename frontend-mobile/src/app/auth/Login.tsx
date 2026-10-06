@@ -1,28 +1,23 @@
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
-import { colors, radius, spacing, typography } from "@/theme";
-import { router } from "expo-router";
-import { HeartPulse } from "lucide-react-native";
-import { useState } from "react";
+import { Button } from '@/components/Button';
+import { Input } from '@/components/Input';
+import { colors, radius, spacing, typography } from '@/theme';
+import { router } from 'expo-router';
+import { HeartPulse } from 'lucide-react-native';
+import { useState } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.replace("/");
-    }, 300);
+    router.replace('/home');
   };
 
   return (
@@ -30,7 +25,7 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: "center",
+          justifyContent: 'center',
           paddingHorizontal: spacing.screenPadding,
           paddingVertical: spacing.xl,
         }}
@@ -38,18 +33,18 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Brand */}
-        <View style={{ alignItems: "center" }}>
+        <View style={{ alignItems: 'center' }}>
           <View
             style={{
               width: 56,
               height: 56,
               borderRadius: radius.full,
               backgroundColor: colors.primary,
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <HeartPulse size={28} color="#FFFFFF" strokeWidth={2.2} />
+            <HeartPulse size={28} color={colors.white} strokeWidth={2.2} />
           </View>
 
           <Text
@@ -65,7 +60,7 @@ export default function LoginScreen() {
             style={{
               ...typography.body,
               color: colors.textSecondary,
-              textAlign: "center",
+              textAlign: 'center',
               marginTop: spacing.xs,
             }}
           >
@@ -90,7 +85,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Form fields */}
-        <View style={{ marginTop: spacing.lg}}>
+        <View style={{ marginTop: spacing.lg }}>
           <Input
             label="Email / Rekam Medis"
             placeholder="nama@email.com"
@@ -113,7 +108,7 @@ export default function LoginScreen() {
           onPress={() => {}}
           activeOpacity={0.7}
           style={{
-            alignSelf: "flex-end",
+            alignSelf: 'flex-end',
             marginTop: spacing.sm,
             paddingVertical: spacing.xs,
           }}
@@ -125,22 +120,22 @@ export default function LoginScreen() {
 
         {/* CTA */}
         <View style={{ marginTop: spacing.lg }}>
-          <Button title="Masuk" onPress={handleLogin} loading={loading} />
+          <Button title="Masuk" onPress={handleLogin} />
         </View>
 
         {/* Footer */}
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
+            flexDirection: 'row',
+            justifyContent: 'center',
             marginTop: spacing.xl,
           }}
         >
           <Text style={{ ...typography.body, color: colors.textSecondary }}>
-            Belum punya akun?{" "}
+            Belum punya akun?{' '}
           </Text>
           <TouchableOpacity
-            onPress={() => router.push("/auth/Register")}
+            onPress={() => router.push('/auth/Register')}
             activeOpacity={0.7}
           >
             <Text style={{ ...typography.bodyMedium, color: colors.primary }}>

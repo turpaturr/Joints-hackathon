@@ -5,7 +5,7 @@ import { colors, radius, spacing, typography } from '../theme';
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive';
   disabled?: boolean;
   loading?: boolean;
 }

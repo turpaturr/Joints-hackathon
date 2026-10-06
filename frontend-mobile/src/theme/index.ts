@@ -13,6 +13,7 @@ export const colors = {
   textSecondary: '#5C7A91',
   border: '#DCE8F0',
   disabled: '#B8C5CE',
+  white: '#FFFFFF',
 
   // Warna Semantik[cite: 1]
   success: '#2FAE60',
@@ -28,12 +29,17 @@ export const spacing = {
   lg: 24,
   xl: 32,
   xxl: 48,
-  screenPadding: 20, // Padding horizontal layar[cite: 1]
-};
+  screenPadding: 20,  // ← sudah ada di kamu
+  cardGap: 12,        // ← TAMBAHKAN INI (DESIGN.md §4)
+} as const;
 
 // src/theme/typography.ts
 export const typography = {
-  display: { fontSize: 28, lineHeight: 36, fontFamily: 'Poppins_600SemiBold' },
+  display: {
+    fontSize: 28,
+    lineHeight: 36,
+    fontFamily: 'Poppins_600SemiBold',  // ← harus ada
+  },
   h1: { fontSize: 22, lineHeight: 30, fontFamily: 'Poppins_600SemiBold' },
   h2: { fontSize: 18, lineHeight: 26, fontFamily: 'Poppins_600SemiBold' },
   body: { fontSize: 15, lineHeight: 22, fontFamily: 'Poppins_400Regular' },
