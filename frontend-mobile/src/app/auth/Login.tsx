@@ -33,8 +33,8 @@ export default function LoginScreen() {
       await authStore.save(result.user, result.token);
       router.replace('/home');
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
+      if (err instanceof ApiError || (err as any)?.name === 'ApiError') {
+        setError((err as any).message);
       } else {
         setError('Terjadi kesalahan. Coba lagi.');
       }
@@ -180,6 +180,6 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView> 
   );
 }

@@ -42,15 +42,44 @@ export async function request<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  const url = `${BASE_URL}${path}`;
+  console.log(`[API] ${method} ${url}`);
 
-  const json = await res.json();
+  // ── Network request ─────────────────────────────────────────────────────
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch (networkError) {
+    console.error(`[API] Network error:`, networkError);
+    throw new ApiError(
+      0,
+      'Tidak dapat terhubung ke server. Pastikan backend berjalan.',
+    );
+  }
+
+  console.log(`[API] ${method} ${url} → ${res.status}`);
+
+  // ── Parse response body ──────────────────────────────────────────────────
+  // The server might occasionally return HTML (e.g. proxy errors), so we
+  // read as text first and only then try JSON.parse.
+  const text = await res.text();
+  let json: any;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    console.error(`[API] Non-JSON response (${res.status}):`, text.slice(0, 300));
+    throw new ApiError(
+      res.status,
+      `Server mengembalikan respons tidak valid (HTTP ${res.status})`,
+    );
+  }
 
   if (!res.ok) {
+    console.warn(`[API] Error body:`, json);
     throw new ApiError(res.status, json?.message ?? res.statusText, json);
   }
 

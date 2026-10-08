@@ -37,8 +37,8 @@ export default function RegisterScreen() {
       await register({ email, password, namaLengkap: fullName, role: 'PATIENT' });
       router.replace('/auth/Login');
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
+      if (err instanceof ApiError || (err as any)?.name === 'ApiError') {
+        setError((err as any).message);
       } else {
         setError('Terjadi kesalahan. Coba lagi.');
       }
