@@ -1,3 +1,0 @@
-"""
-Connect Backend Application Package
-"""
