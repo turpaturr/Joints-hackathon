@@ -11,6 +11,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ApiError } from '@/services/api';
+import { register } from '@/services/auth.service';
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
@@ -20,7 +22,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
       setError('Semua kolom wajib diisi');
       return;
@@ -31,11 +33,18 @@ export default function RegisterScreen() {
     }
     setError('');
     setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await register({ email, password, namaLengkap: fullName, role: 'PATIENT' });
       router.replace('/auth/Login');
-    }, 1200);
+    } catch (err) {
+      if (err instanceof ApiError || (err as any)?.name === 'ApiError') {
+        setError((err as any).message);
+      } else {
+        setError('Terjadi kesalahan. Coba lagi.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

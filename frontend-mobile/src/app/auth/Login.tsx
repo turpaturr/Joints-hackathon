@@ -11,13 +11,36 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ApiError } from '@/services/api';
+import { login } from '@/services/auth.service';
+import { authStore } from '@/services/authStore';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    router.replace('/home');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Email dan kata sandi wajib diisi');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const result = await login({ email, password });
+      await authStore.save(result.user, result.token);
+      router.replace('/home');
+    } catch (err) {
+      if (err instanceof ApiError || (err as any)?.name === 'ApiError') {
+        setError((err as any).message);
+      } else {
+        setError('Terjadi kesalahan. Coba lagi.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,6 +107,19 @@ export default function LoginScreen() {
           </Text>
         </View>
 
+        {/* Error */}
+        {error ? (
+          <Text
+            style={{
+              ...typography.caption,
+              color: colors.danger,
+              marginTop: spacing.md,
+            }}
+          >
+            {error}
+          </Text>
+        ) : null}
+
         {/* Form fields */}
         <View style={{ marginTop: spacing.lg }}>
           <Input
@@ -120,7 +156,7 @@ export default function LoginScreen() {
 
         {/* CTA */}
         <View style={{ marginTop: spacing.lg }}>
-          <Button title="Masuk" onPress={handleLogin} />
+          <Button title="Masuk" onPress={handleLogin} loading={loading} />
         </View>
 
         {/* Footer */}
@@ -144,6 +180,6 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView> 
   );
 }
