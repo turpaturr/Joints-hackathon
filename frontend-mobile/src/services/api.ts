@@ -3,7 +3,8 @@
  * Reads the base URL from the EXPO_PUBLIC_API_URL env variable.
  */
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+//const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.11.99.10:3000'; //kalau mau tes di expo go ganti ke ip masing masing komputer
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -57,7 +58,7 @@ export async function request<T>(
     console.error(`[API] Network error:`, networkError);
     throw new ApiError(
       0,
-      'Tidak dapat terhubung ke server. Pastikan backend berjalan.',
+      'Tidak dapat terhubung ke server.',
     );
   }
 

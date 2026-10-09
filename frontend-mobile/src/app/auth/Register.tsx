@@ -1,46 +1,46 @@
-import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
-import { colors, radius, spacing, typography } from '@/theme';
-import { router } from 'expo-router';
-import { HeartPulse } from 'lucide-react-native';
-import { useState } from 'react';
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ApiError } from '@/services/api';
-import { register } from '@/services/auth.service';
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import { ApiError } from "@/services/api";
+import { register } from "@/services/AuthServices/auth.service";
+import { colors, radius, spacing, typography } from "@/theme";
+import { router } from "expo-router";
+import { HeartPulse } from "lucide-react-native";
+import { useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen() {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
-      setError('Semua kolom wajib diisi');
+      setError("Semua kolom wajib diisi");
       return;
     }
     if (password !== confirmPassword) {
-      setError('Konfirmasi kata sandi tidak cocok');
+      setError("Konfirmasi kata sandi tidak cocok");
       return;
     }
-    setError('');
+    setError("");
     setLoading(true);
     try {
-      await register({ email, password, namaLengkap: fullName, role: 'PATIENT' });
-      router.replace('/auth/Login');
+      await register({
+        email,
+        password,
+        namaLengkap: fullName,
+        role: "PATIENT",
+      });
+      router.replace("/auth/Login");
     } catch (err) {
-      if (err instanceof ApiError || (err as any)?.name === 'ApiError') {
+      if (err instanceof ApiError || (err as any)?.name === "ApiError") {
         setError((err as any).message);
       } else {
-        setError('Terjadi kesalahan. Coba lagi.');
+        setError("Terjadi kesalahan. Coba lagi.");
       }
     } finally {
       setLoading(false);
@@ -52,7 +52,7 @@ export default function RegisterScreen() {
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: 'center',
+          justifyContent: "center",
           paddingHorizontal: spacing.screenPadding,
           paddingVertical: spacing.xl,
         }}
@@ -60,18 +60,18 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Brand */}
-        <View style={{ alignItems: 'center' }}>
+        <View style={{ alignItems: "center" }}>
           <View
             style={{
               width: 56,
               height: 56,
               borderRadius: radius.full,
               backgroundColor: colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-           <HeartPulse size={28} color="#FFFFFF" strokeWidth={2.2} />
+            <HeartPulse size={28} color="#FFFFFF" strokeWidth={2.2} />
           </View>
 
           <Text
@@ -87,7 +87,7 @@ export default function RegisterScreen() {
             style={{
               ...typography.body,
               color: colors.textSecondary,
-              textAlign: 'center',
+              textAlign: "center",
               marginTop: spacing.xs,
             }}
           >
@@ -164,16 +164,16 @@ export default function RegisterScreen() {
         {/* Footer */}
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
+            flexDirection: "row",
+            justifyContent: "center",
             marginTop: spacing.xl,
           }}
         >
           <Text style={{ ...typography.body, color: colors.textSecondary }}>
-            Sudah punya akun?{' '}
+            Sudah punya akun?{" "}
           </Text>
           <TouchableOpacity
-            onPress={() => router.push('/auth/Login')}
+            onPress={() => router.push("/auth/Login")}
             activeOpacity={0.7}
           >
             <Text style={{ ...typography.bodyMedium, color: colors.primary }}>

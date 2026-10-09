@@ -1,53 +1,27 @@
 import { FeatureCard } from '@/components/FeatureCard';
 import { colors, radius, spacing, typography } from '@/theme';
 import { router } from 'expo-router';
-import { History, MessageCircle, Pill } from 'lucide-react-native';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Activity,
+  History,
+  MessageCircle,
+  Pill,
+} from 'lucide-react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// TODO: replace with real data from the doctor's program
-const USER = { name: 'Roja' };
-const THERAPY = {
-  title: 'Latihan Lutut',
-  time: '08.00',
-  day: 3,
-  totalDays: 42,
-  frequency: '3× minggu',
-};
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={{ flex: 1 }}>
-      <Text style={{ ...typography.caption, color: colors.textSecondary }}>
-        {label}
-      </Text>
-      <Text
-        style={{
-          ...typography.h2,
-          color: colors.textPrimary,
-          marginTop: spacing.xs,
-        }}
-      >
-        {value}
-      </Text>
-    </View>
-  );
-}
-
 export default function HomeScreen() {
-  const progress = Math.min(THERAPY.day / THERAPY.totalDays, 1);
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgBase }}>
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing.screenPadding,
           paddingTop: spacing.xl,
-          paddingBottom: spacing.xl * 1.5,
+          paddingBottom: spacing.xl,
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ── */}
+        {/* ── Header: Greeting + Avatar ── */}
         <View
           style={{
             flexDirection: 'row',
@@ -56,144 +30,177 @@ export default function HomeScreen() {
           }}
         >
           <View style={{ flex: 1 }}>
-            <Text style={{ ...typography.caption, color: colors.textSecondary }}>
-              Semangat terapi hari ini
+            <Text style={{ ...typography.display, color: colors.textPrimary }}>
+              Halo, Roja
             </Text>
             <Text
               style={{
-                ...typography.display,
-                color: colors.textPrimary,
+                ...typography.caption,
+                color: colors.textSecondary,
                 marginTop: spacing.xs,
               }}
             >
-              Halo, {USER.name}
+              Semangat terapi hari ini
             </Text>
           </View>
 
           <View
             style={{
-              width: 44,
-              height: 44,
+              width: 48,
+              height: 48,
               borderRadius: radius.full,
-              backgroundColor: colors.bgBase,
-              borderWidth: 1,
-              borderColor: colors.border,
+              backgroundColor: colors.primary,
               alignItems: 'center',
               justifyContent: 'center',
               marginLeft: spacing.md,
             }}
           >
-            <Text style={{ ...typography.h2, color: colors.primary }}>
-              {USER.name.charAt(0)}
-            </Text>
+            <Text style={{ ...typography.h2, color: colors.white }}>R</Text>
           </View>
         </View>
 
-        {/* ── Hero: Terapi Hari Ini ── */}
+        {/* Divider */}
+        <View
+          style={{
+            height: 1,
+            backgroundColor: colors.border,
+            marginTop: spacing.lg,
+          }}
+        />
+
+        {/* ── Hero Card: Terapi Hari Ini ── */}
         <View
           style={{
             marginTop: spacing.xl,
-            backgroundColor: colors.primary,
+            backgroundColor: colors.surface,
             borderRadius: radius.lg,
-            padding: spacing.lg,
+            padding: spacing.md,
+            shadowColor: colors.primaryDark,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            elevation: 2,
           }}
         >
-          <Text
-            style={{
-              ...typography.caption,
-              color: colors.white,
-              opacity: 0.8,
-            }}
-          >
-            Terapi hari ini · {THERAPY.time}
+          <Text style={{ ...typography.caption, color: colors.textSecondary }}>
+            Terapi hari ini
           </Text>
 
-          <Text
+          {/* Judul + Jam */}
+          <View
             style={{
-              ...typography.h1,
-              color: colors.white,
+              flexDirection: 'row',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
               marginTop: spacing.xs,
+              gap: spacing.sm,
             }}
           >
-            {THERAPY.title}
-          </Text>
-
-          {/* Progress */}
-          <View style={{ marginTop: spacing.lg }}>
-            <View
-              style={{
-                height: 4,
-                borderRadius: radius.full,
-                backgroundColor: 'rgba(255,255,255,0.25)',
-                overflow: 'hidden',
-              }}
-            >
-              <View
-                style={{
-                  width: `${progress * 100}%`,
-                  height: '100%',
-                  borderRadius: radius.full,
-                  backgroundColor: colors.white,
-                }}
-              />
-            </View>
             <Text
               style={{
-                ...typography.caption,
-                color: colors.white,
-                opacity: 0.8,
-                marginTop: spacing.sm,
+                ...typography.h1,
+                color: colors.textPrimary,
+                flexShrink: 1,
               }}
             >
-              Hari {THERAPY.day} dari {THERAPY.totalDays}
+              Latihan Lutut
+            </Text>
+            <Text style={{ ...typography.h1, color: colors.primary }}>
+              08.00
             </Text>
           </View>
 
-          {/* CTA */}
-          <Pressable
-            onPress={() => router.push('/therapy')}
-            style={({ pressed }) => ({
-              marginTop: spacing.lg,
-              backgroundColor: colors.white,
+          {/* Progress bar */}
+          <View
+            style={{
+              height: 6,
               borderRadius: radius.full,
-              paddingVertical: spacing.md,
-              alignItems: 'center',
-              opacity: pressed ? 0.85 : 1,
-            })}
+              backgroundColor: colors.bgBase,
+              marginTop: spacing.md,
+              overflow: 'hidden',
+            }}
           >
-            <Text style={{ ...typography.h2, color: colors.primary }}>
-              Mulai Terapi
-            </Text>
-          </Pressable>
+            <View
+              style={{
+                width: '7%',
+                height: '100%',
+                borderRadius: radius.full,
+                backgroundColor: colors.accentTeal,
+              }}
+            />
+          </View>
         </View>
 
-        {/* ── Stats ── */}
+        {/* ── Info Row: 2 kolom dari program dokter ── */}
         <View
           style={{
             flexDirection: 'row',
+            gap: spacing.cardGap,
             marginTop: spacing.md,
-            padding: spacing.md,
-            borderRadius: radius.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
-            backgroundColor: colors.white,
           }}
         >
-          <Stat
-            label="Progres"
-            value={`${Math.round(progress * 100)}%`}
-          />
+          {/* Hari ke-N */}
           <View
             style={{
-              width: 1,
-              backgroundColor: colors.border,
-              marginHorizontal: spacing.md,
+              flex: 1,
+              backgroundColor: colors.surface,
+              borderRadius: radius.lg,
+              padding: spacing.md,
+              shadowColor: colors.primaryDark,
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 2,
             }}
-          />
-          <Stat label="Frekuensi" value={THERAPY.frequency} />
+          >
+            <Text
+              style={{ ...typography.caption, color: colors.textSecondary }}
+            >
+              Hari ke-
+            </Text>
+            <Text
+              style={{
+                ...typography.h1,
+                color: colors.textPrimary,
+                marginTop: spacing.xs,
+              }}
+            >
+              3/42
+            </Text>
+          </View>
+
+          {/* Frekuensi */}
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: colors.surface,
+              borderRadius: radius.lg,
+              padding: spacing.md,
+              shadowColor: colors.primaryDark,
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 2,
+            }}
+          >
+            <Text
+              style={{ ...typography.caption, color: colors.textSecondary }}
+            >
+              Frekuensi
+            </Text>
+            <Text
+              style={{
+                ...typography.h1,
+                color: colors.textPrimary,
+                marginTop: spacing.xs,
+              }}
+            >
+              3× minggu
+            </Text>
+          </View>
         </View>
 
-        {/* ── Aksi Cepat ── */}
+        {/* ── Section: Aksi Cepat ── */}
         <Text
           style={{
             ...typography.h2,
@@ -206,6 +213,13 @@ export default function HomeScreen() {
         </Text>
 
         <View style={{ gap: spacing.cardGap }}>
+          <FeatureCard
+            icon={Activity}
+            title="Terapi Sekarang"
+            description="Mulai sesi terapi hari ini"
+            onPress={() => router.push('/therapy')}
+            highlight
+          />
           <FeatureCard
             icon={Pill}
             title="Jadwal Minum Obat"

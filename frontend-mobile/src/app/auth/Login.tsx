@@ -1,42 +1,37 @@
-import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
-import { colors, radius, spacing, typography } from '@/theme';
-import { router } from 'expo-router';
-import { HeartPulse } from 'lucide-react-native';
-import { useState } from 'react';
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ApiError } from '@/services/api';
-import { login } from '@/services/auth.service';
-import { authStore } from '@/services/authStore';
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import { ApiError } from "@/services/api";
+import { login } from "@/services/AuthServices/auth.service";
+import { authStore } from "@/services/AuthServices/authStore";
+import { colors, radius, spacing, typography } from "@/theme";
+import { router } from "expo-router";
+import { HeartPulse } from "lucide-react-native";
+import { useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError('Email dan kata sandi wajib diisi');
+      setError("Email dan kata sandi wajib diisi");
       return;
     }
-    setError('');
+    setError("");
     setLoading(true);
     try {
       const result = await login({ email, password });
       await authStore.save(result.user, result.token);
-      router.replace('/home');
+      router.replace("/home");
     } catch (err) {
-      if (err instanceof ApiError || (err as any)?.name === 'ApiError') {
+      if (err instanceof ApiError || (err as any)?.name === "ApiError") {
         setError((err as any).message);
       } else {
-        setError('Terjadi kesalahan. Coba lagi.');
+        setError("Terjadi kesalahan. Coba lagi.");
       }
     } finally {
       setLoading(false);
@@ -48,7 +43,7 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: 'center',
+          justifyContent: "center",
           paddingHorizontal: spacing.screenPadding,
           paddingVertical: spacing.xl,
         }}
@@ -56,15 +51,15 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Brand */}
-        <View style={{ alignItems: 'center' }}>
+        <View style={{ alignItems: "center" }}>
           <View
             style={{
               width: 56,
               height: 56,
               borderRadius: radius.full,
               backgroundColor: colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <HeartPulse size={28} color={colors.white} strokeWidth={2.2} />
@@ -83,7 +78,7 @@ export default function LoginScreen() {
             style={{
               ...typography.body,
               color: colors.textSecondary,
-              textAlign: 'center',
+              textAlign: "center",
               marginTop: spacing.xs,
             }}
           >
@@ -144,7 +139,7 @@ export default function LoginScreen() {
           onPress={() => {}}
           activeOpacity={0.7}
           style={{
-            alignSelf: 'flex-end',
+            alignSelf: "flex-end",
             marginTop: spacing.sm,
             paddingVertical: spacing.xs,
           }}
@@ -162,16 +157,16 @@ export default function LoginScreen() {
         {/* Footer */}
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
+            flexDirection: "row",
+            justifyContent: "center",
             marginTop: spacing.xl,
           }}
         >
           <Text style={{ ...typography.body, color: colors.textSecondary }}>
-            Belum punya akun?{' '}
+            Belum punya akun?{" "}
           </Text>
           <TouchableOpacity
-            onPress={() => router.push('/auth/Register')}
+            onPress={() => router.push("/auth/Register")}
             activeOpacity={0.7}
           >
             <Text style={{ ...typography.bodyMedium, color: colors.primary }}>
@@ -180,6 +175,6 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView> 
+    </SafeAreaView>
   );
 }

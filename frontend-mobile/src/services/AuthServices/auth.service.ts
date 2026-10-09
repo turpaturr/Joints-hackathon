@@ -1,9 +1,9 @@
-import { request } from './api';
+import { request } from "../api";
 
 export interface AuthUser {
   id: string;
   email: string;
-  role: 'PATIENT' | 'NAKES';
+  role: "PATIENT" | "NAKES";
 }
 
 export interface LoginPayload {
@@ -15,7 +15,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   namaLengkap: string;
-  role: 'PATIENT' | 'NAKES';
+  role: "PATIENT" | "NAKES";
 }
 
 export interface LoginResponse {
@@ -24,18 +24,16 @@ export interface LoginResponse {
 }
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
-  const res = await request<LoginResponse>('/api/auth/login', {
-    method: 'POST',
+  const res = await request<LoginResponse>("/api/auth/login", {
+    method: "POST",
     body: payload,
   });
   return res.data;
 }
 
-export async function register(
-  payload: RegisterPayload,
-): Promise<AuthUser> {
-  const res = await request<AuthUser>('/api/auth/register', {
-    method: 'POST',
+export async function register(payload: RegisterPayload): Promise<AuthUser> {
+  const res = await request<AuthUser>("/api/auth/register", {
+    method: "POST",
     body: payload,
   });
   return res.data;
