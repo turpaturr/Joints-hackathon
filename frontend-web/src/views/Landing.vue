@@ -22,12 +22,33 @@ const hero = ref(null)
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
+
 :root { color-scheme: light; }
-html { -webkit-text-size-adjust: 100%; background: #F7EEDD !important; }
-body { display: block !important; place-items: normal !important; margin: 0 !important; min-width: 0 !important; overflow-x: clip; background: #F7EEDD !important; color: #06344F !important; }
+
+html, body { 
+  -webkit-text-size-adjust: 100%; 
+  background: #F7EEDD !important; 
+  
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+}
+
+body { 
+  display: block !important; 
+  place-items: normal !important; 
+  margin: 0 !important; 
+  min-width: 0 !important; 
+  overflow-x: clip; 
+  color: #06344F !important; 
+}
+
 #app { max-width: none !important; margin: 0 !important; padding: 0 !important; text-align: left !important; }
 
-/* Unscoped on purpose: scoped styles don't reach elements inside child components */
 .page * { box-sizing: border-box; }
 .page :where(h1, h2, h3, p, ul, li) { margin: 0; padding: 0; }
 </style>
