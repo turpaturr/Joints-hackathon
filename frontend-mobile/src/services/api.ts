@@ -3,8 +3,11 @@
  * Reads the base URL from the EXPO_PUBLIC_API_URL env variable.
  */
 
-//const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.11.99.10:3000'; //kalau mau tes di expo go ganti ke ip masing masing komputer
+import Constants from 'expo-constants';
+const host = Constants.expoConfig?.hostUri?.split(':')[0];
+const BASE_URL = `http://${host}:3000`;
+// const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+// const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.11.99.10:3000'; //kalau mau tes di expo go ganti ke ip masing masing komputer
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
