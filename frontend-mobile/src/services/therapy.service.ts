@@ -30,11 +30,40 @@ export interface Prescription {
   nakesId: string;
   catatan?: string;
   createdAt: string;
-  movements: Array<{
+  movements: {
     movement: Movement;
     repetisi: number;
     durasiDetik: number;
-  }>;
+  }[];
+}
+
+export interface TherapySessionPayload {
+  programName: string;
+  estimatedAngle: number;
+  validRepetitions: number;
+  durationMs: number;
+  sampleCount: number;
+  performedAt: string;
+  prescriptionId?: string;
+}
+
+export interface TherapySession extends TherapySessionPayload {
+  id: string;
+  patientId: string;
+  createdAt: string;
+}
+
+/** POST /api/therapy-sessions — PATIENT only */
+export async function createTherapySession(
+  payload: TherapySessionPayload,
+  token: string,
+): Promise<TherapySession> {
+  const res = await request<TherapySession>('/api/therapy-sessions', {
+    method: 'POST',
+    body: payload,
+    token,
+  });
+  return res.data;
 }
 
 /** GET /api/therapy/movements — requires auth token */

@@ -1,6 +1,13 @@
 import { Button } from '@/components/Button';
 import { useGyroscope } from '@/hooks/useGyroscope';
+import { ApiError } from '@/services/api';
+import { authStore } from '@/services/AuthServices/authStore';
+import {
+  createTherapySession,
+  type TherapySessionPayload,
+} from '@/services/therapy.service';
 import { colors, radius, spacing, typography } from '@/theme';
+import { estimateTherapyMetrics } from '@/utils/therapyMetrics';
 import { router } from 'expo-router';
 import { ArrowLeft, CheckCircle } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -14,7 +21,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-type SessionState = 'ready' | 'recording' | 'done';
+type SessionState = 'ready' | 'recording' | 'saving' | 'saveFailed' | 'done';
 
 const PROGRAM_NAME = 'Latihan Lutut';
 
@@ -30,8 +37,12 @@ export default function TherapyScreen() {
   const [elapsedMs, setElapsedMs] = useState(0);
   const [finalDuration, setFinalDuration] = useState(0);
   const [finalSampleCount, setFinalSampleCount] = useState(0);
+  const [estimatedAngle, setEstimatedAngle] = useState(0);
+  const [validRepetitions, setValidRepetitions] = useState(0);
+  const [saveError, setSaveError] = useState('');
   const startTimeRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingSessionRef = useRef<TherapySessionPayload | null>(null);
 
   const { latest, sampleCount, flush, reset } = useGyroscope({
     enabled: sessionState === 'recording',
@@ -52,25 +63,93 @@ export default function TherapyScreen() {
   const handleStart = () => {
     reset();
     setElapsedMs(0);
+    setSaveError('');
+    pendingSessionRef.current = null;
     startTimeRef.current = Date.now();
     setSessionState('recording');
   };
 
-  const handleStop = () => {
+  const sendSession = async (payload: TherapySessionPayload) => {
+    const token = authStore.token;
+    if (!token) {
+      throw new Error('Sesi login berakhir. Silakan masuk kembali.');
+    }
+    await createTherapySession(payload, token);
+  };
+
+  const handleStop = async () => {
     const samples = flush();
     const duration = Date.now() - startTimeRef.current;
+    const metrics = estimateTherapyMetrics(samples);
+    const payload: TherapySessionPayload = {
+      programName: PROGRAM_NAME,
+      estimatedAngle: metrics.estimatedAngle,
+      validRepetitions: metrics.validRepetitions,
+      durationMs: duration,
+      sampleCount: samples.length,
+      performedAt: new Date(startTimeRef.current).toISOString(),
+    };
+
     setFinalDuration(duration);
     setFinalSampleCount(samples.length);
-    setSessionState('done');
+    setEstimatedAngle(metrics.estimatedAngle);
+    setValidRepetitions(metrics.validRepetitions);
+    pendingSessionRef.current = payload;
+    setSessionState('saving');
+    setSaveError('');
 
-    console.log('[Therapy] Sesi selesai:', {
-      program_name: PROGRAM_NAME,
-      duration_ms: duration,
-      sample_count: samples.length,
-    });
+    try {
+      await sendSession(payload);
+      setSessionState('done');
+    } catch (error) {
+      setSaveError(
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : 'Sesi gagal dikirim. Periksa koneksi lalu coba lagi.',
+      );
+      setSessionState('saveFailed');
+    }
+  };
+
+  const handleRetry = async () => {
+    const payload = pendingSessionRef.current;
+    if (!payload) {
+      setSaveError('Data sesi tidak tersedia. Silakan mulai sesi baru.');
+      return;
+    }
+
+    setSessionState('saving');
+    setSaveError('');
+    try {
+      await sendSession(payload);
+      setSessionState('done');
+    } catch (error) {
+      setSaveError(
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : 'Sesi gagal dikirim. Periksa koneksi lalu coba lagi.',
+      );
+      setSessionState('saveFailed');
+    }
   };
 
   const handleBack = () => {
+    if (sessionState === 'saving') return;
+    if (sessionState === 'saveFailed') {
+      Alert.alert(
+        'Sesi belum tersimpan',
+        'Jika keluar sekarang, data sesi ini akan hilang.',
+        [
+          { text: 'Tetap di sini', style: 'cancel' },
+          {
+            text: 'Keluar',
+            style: 'destructive',
+            onPress: () => router.back(),
+          },
+        ],
+      );
+      return;
+    }
     if (sessionState === 'recording') {
       Alert.alert(
         'Hentikan sesi?',
@@ -102,6 +181,7 @@ export default function TherapyScreen() {
       >
         <TouchableOpacity
           onPress={handleBack}
+          disabled={sessionState === 'saving'}
           activeOpacity={0.7}
           style={{
             width: 44,
@@ -146,10 +226,14 @@ export default function TherapyScreen() {
               latest={latest}
             />
           )}
+          {sessionState === 'saving' && <SavingState />}
+          {sessionState === 'saveFailed' && <SaveFailedState message={saveError} />}
           {sessionState === 'done' && (
             <DoneState
               duration={finalDuration}
               sampleCount={finalSampleCount}
+              estimatedAngle={estimatedAngle}
+              validRepetitions={validRepetitions}
             />
           )}
         </View>
@@ -164,6 +248,12 @@ export default function TherapyScreen() {
               variant="primary"
               onPress={handleStop}
             />
+          )}
+          {sessionState === 'saving' && (
+            <Button title="Mengirim Sesi" onPress={() => {}} loading />
+          )}
+          {sessionState === 'saveFailed' && (
+            <Button title="Coba Kirim Lagi" onPress={handleRetry} />
           )}
           {sessionState === 'done' && (
             <Button
@@ -210,7 +300,7 @@ function ReadyState() {
           marginTop: spacing.sm,
         }}
       >
-        Taruh HP sesuai posisi tubuh yang diinstruksikan, lalu tekan tombol "Mulai Sesi"
+        Taruh HP sesuai posisi tubuh yang diinstruksikan, lalu tekan Mulai Sesi
         sebelum memulai.
       </Text>
     </View>
@@ -296,8 +386,8 @@ function TiltVisualizer({
 }: {
   latest: { x: number; y: number; z: number };
 }) {
-  const rotateX = useRef(new Animated.Value(0)).current;
-  const rotateY = useRef(new Animated.Value(0)).current;
+  const [rotateX] = useState(() => new Animated.Value(0));
+  const [rotateY] = useState(() => new Animated.Value(0));
   const smoothRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -434,9 +524,13 @@ function DataChip({ label, value }: { label: string; value: number }) {
 function DoneState({
   duration,
   sampleCount,
+  estimatedAngle,
+  validRepetitions,
 }: {
   duration: number;
   sampleCount: number;
+  estimatedAngle: number;
+  validRepetitions: number;
 }) {
   return (
     <View style={{ alignItems: 'center' }}>
@@ -449,7 +543,7 @@ function DoneState({
           marginTop: spacing.md,
         }}
       >
-        Sesi selesai
+        Sesi tersimpan
       </Text>
 
       <Text
@@ -460,7 +554,57 @@ function DoneState({
           marginTop: spacing.sm,
         }}
       >
-        Durasi {formatDuration(duration)} · {sampleCount} data
+        Durasi {formatDuration(duration)} · {validRepetitions} repetisi · {estimatedAngle.toFixed(1)}°
+      </Text>
+      <Text
+        style={{
+          ...typography.caption,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginTop: spacing.xs,
+        }}
+      >
+        Estimasi dari {sampleCount} data gyroscope, bukan pengukuran medis.
+      </Text>
+    </View>
+  );
+}
+
+function SavingState() {
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <Text style={{ ...typography.h2, color: colors.textPrimary }}>
+        Menyimpan sesi
+      </Text>
+      <Text
+        style={{
+          ...typography.body,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginTop: spacing.sm,
+        }}
+      >
+        Hasil terapi sedang dikirim ke server.
+      </Text>
+    </View>
+  );
+}
+
+function SaveFailedState({ message }: { message: string }) {
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <Text style={{ ...typography.h2, color: colors.danger }}>
+        Sesi belum tersimpan
+      </Text>
+      <Text
+        style={{
+          ...typography.body,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginTop: spacing.sm,
+        }}
+      >
+        {message}
       </Text>
     </View>
   );
