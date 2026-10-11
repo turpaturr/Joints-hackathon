@@ -26,7 +26,7 @@ export default function LoginScreen() {
     try {
       const result = await login({ email, password });
       await authStore.save(result.user, result.token);
-      router.replace("/home");
+      router.replace(result.user.role === "PATIENT" ? "/connection" : "/home");
     } catch (err) {
       if (err instanceof ApiError || (err as any)?.name === "ApiError") {
         setError((err as any).message);

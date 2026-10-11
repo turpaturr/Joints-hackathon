@@ -6,9 +6,11 @@ import {
   History,
   MessageCircle,
   Pill,
+  UserRound,
 } from 'lucide-react-native';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { authStore } from '@/services/AuthServices/authStore';
 
 export default function HomeScreen() {
   return (
@@ -238,6 +240,14 @@ export default function HomeScreen() {
             description="Ngobrol dulu sebelum konsultasi"
             onPress={() => router.push('/consult')}
           />
+          {authStore.user?.role === 'PATIENT' ? (
+            <FeatureCard
+              icon={UserRound}
+              title="Hubungkan ke Nakes"
+              description="Tampilkan kode untuk menghubungkan akunmu"
+              onPress={() => router.push('/connection')}
+            />
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>
