@@ -32,11 +32,18 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-font",
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Izinkan Connect mengakses sensor gerak untuk merekam gerakan terapi Anda."
+        }
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     }
   }
 }
