@@ -51,7 +51,7 @@ defineExpose({
         class="h-12 rounded-control border border-line bg-surface px-3 text-sm font-normal text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
         type="email"
         autocomplete="username"
-        placeholder="nama@klinik.id"
+        placeholder="Masukkan Email"
         :aria-invalid="!!errors.email"
         :aria-describedby="errors.email ? 'email-error' : undefined"
         @input="errors.email = ''"
