@@ -9,7 +9,6 @@ export interface AuthUser {
 export interface LoginPayload {
   email: string;
   password: string;
-  platform: "WEB" | "MOBILE";
 }
 
 export interface RegisterPayload {
@@ -27,7 +26,7 @@ export interface LoginResponse {
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   const res = await request<LoginResponse>("/api/auth/login", {
     method: "POST",
-    body: payload,
+    body: { ...payload, platform: "ANDROID" },
   });
   return res.data;
 }
