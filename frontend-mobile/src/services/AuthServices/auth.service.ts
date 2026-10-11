@@ -9,6 +9,7 @@ export interface AuthUser {
 export interface LoginPayload {
   email: string;
   password: string;
+  platform: "WEB" | "MOBILE";
 }
 
 export interface RegisterPayload {

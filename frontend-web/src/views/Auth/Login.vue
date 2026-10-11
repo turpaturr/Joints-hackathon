@@ -9,13 +9,16 @@ const router = useRouter()
 const route = useRoute()
 const formRef = ref(null)
 
-async function handleSubmit({ email, password }) {
+async function handleSubmit({ email, password, platform }) {
   try {
-    const response = await loginUser({ email, password })
+    const response = await loginUser({ email, password, platform })
     const token = response?.data?.token || response?.token
-    const user = response?.data?.user || { email, role: 'NAKES' }
+    const user = response?.data?.user || response?.user
 
     if (!token) throw new Error('Login response did not include an access token.')
+    if (user?.role !== 'NAKES') {
+      throw new Error('Akun ini tidak memiliki akses ke website tenaga kesehatan.')
+    }
 
     saveSession({ token, user })
     await router.push(route.query.redirect || '/monitoring')

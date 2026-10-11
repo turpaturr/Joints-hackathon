@@ -24,7 +24,7 @@ export default function LoginScreen() {
     setError("");
     setLoading(true);
     try {
-      const result = await login({ email, password });
+      const result = await login({ email, password, platform: "MOBILE" });
       await authStore.save(result.user, result.token);
       router.replace("/home");
     } catch (err) {

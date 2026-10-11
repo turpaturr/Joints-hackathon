@@ -25,6 +25,7 @@ async function onSubmit() {
     await emit('submit', {
       email: email.value,
       password: password.value,
+      platform: 'WEB',
       remember: remember.value,
     })
   } catch {
