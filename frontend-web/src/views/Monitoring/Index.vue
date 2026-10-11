@@ -14,10 +14,10 @@ const todaySessions = computed(() => {
   return monitoringData.sessions.filter((item) => new Date(item.performedAt).toDateString() === today).length
 })
 const cards = computed(() => [
-  { label: 'Pasien dalam pemantauan', value: monitoringData.patients.length, detail: 'Pasien yang ditugaskan kepada Anda', tone: 'bg-primary/10 text-primary' },
-  { label: 'Gerakan terapi', value: monitoringData.movements.length, detail: 'Gerakan yang tersedia', tone: 'bg-accent-teal/20 text-primary-dark' },
-  { label: 'Resep terapi aktif', value: monitoringData.prescriptions.filter((item) => Date.parse(item.tanggalMulai) <= Date.now() && Date.parse(item.tanggalBerakhir) >= Date.now()).length, detail: `${monitoringData.prescriptions.length} resep tersimpan`, tone: 'bg-accent-lime/40 text-primary-dark' },
-  { label: 'Sesi terapi hari ini', value: todaySessions.value, detail: 'Sesi yang dikirim pasien', tone: 'bg-success/10 text-success' },
+  { label: 'Pasien dalam pemantauan', value: monitoringData.patients.length, detail: 'Pasien yang ditugaskan kepada Anda', icon: 'patients', tone: 'bg-primary/10 text-primary' },
+  { label: 'Gerakan terapi', value: monitoringData.movements.length, detail: 'Gerakan yang tersedia', icon: 'movement', tone: 'bg-accent-teal/20 text-primary-dark' },
+  { label: 'Resep terapi aktif', value: monitoringData.prescriptions.filter((item) => Date.parse(item.tanggalMulai) <= Date.now() && Date.parse(item.tanggalBerakhir) >= Date.now()).length, detail: `${monitoringData.prescriptions.length} resep tersimpan`, icon: 'prescription', tone: 'bg-accent-lime/40 text-primary-dark' },
+  { label: 'Sesi terapi hari ini', value: todaySessions.value, detail: 'Sesi yang dikirim pasien', icon: 'sessions', tone: 'bg-success/10 text-success' },
 ])
 
 function refresh() {
@@ -44,7 +44,26 @@ function refresh() {
 
     <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Ringkasan pemantauan">
       <article v-for="card in cards" :key="card.label" class="rounded-card border border-line bg-surface p-4 shadow-[var(--connect-shadow-card)] sm:p-5">
-        <span :class="['grid size-9 place-items-center rounded-panel text-sm font-semibold', card.tone]" aria-hidden="true">{{ card.label.slice(0, 1) }}</span>
+        <span :class="['grid size-11 place-items-center rounded-panel', card.tone]" aria-hidden="true">
+          <svg class="size-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+            <template v-if="card.icon === 'patients'">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </template>
+            <template v-else-if="card.icon === 'movement'">
+              <path d="M6 12h12M9 8l-4 4 4 4M15 8l4 4-4 4" />
+              <circle cx="12" cy="12" r="9" />
+            </template>
+            <template v-else-if="card.icon === 'prescription'">
+              <path d="M8 3h8l4 4v14H4V3h4Z" />
+              <path d="M8 3v5h8V3M8 14h8M8 18h5" />
+            </template>
+            <template v-else>
+              <path d="M3 12h4l3-8 4 16 3-8h4" />
+            </template>
+          </svg>
+        </span>
         <p class="mt-4 text-sm text-muted">{{ card.label }}</p>
         <strong class="mt-1 block text-2xl font-semibold leading-8 text-primary-dark">{{ card.value }}</strong>
         <small class="mt-1 block text-xs leading-5 text-muted">{{ card.detail }}</small>
@@ -133,7 +152,7 @@ function refresh() {
             <p class="mb-1 text-xs font-medium text-primary">Pustaka terapi</p>
             <h2 class="text-lg font-semibold text-primary-dark">Katalog gerakan</h2>
           </div>
-          <RouterLink class="min-h-11 content-center rounded-panel px-3 text-sm font-medium text-primary hover:bg-base" :to="{ name: 'monitoring-therapy' }">Kelola →</RouterLink>
+          <RouterLink class="min-h-11 content-center rounded-panel px-3 text-sm font-medium text-primary hover:bg-base" :to="{ name: 'monitoring-prescriptions' }">Kelola →</RouterLink>
         </header>
         <div v-if="monitoringData.movements.length" class="divide-y divide-line/70">
           <div v-for="item in monitoringData.movements.slice(0, 4)" :key="item.id" class="flex min-h-14 items-center gap-3 py-2">

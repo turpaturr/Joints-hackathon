@@ -42,8 +42,19 @@ const routes = [
             {
                 path: 'therapy',
                 name: 'monitoring-therapy',
-                component: () => import('../views/Therapy/Index.vue'),
-                meta: { title: 'Terapi' },
+                redirect: { name: 'monitoring-prescriptions' },
+            },
+            {
+                path: 'therapy/movements',
+                name: 'monitoring-movements',
+                component: () => import('../views/Therapy/Movements.vue'),
+                meta: { title: 'Gerakan terapi' },
+            },
+            {
+                path: 'therapy/prescriptions',
+                name: 'monitoring-prescriptions',
+                component: () => import('../views/Therapy/Prescriptions.vue'),
+                meta: { title: 'Tugaskan terapi' },
             },
             {
                 path: 'reports',

@@ -182,31 +182,34 @@ async function connectPatient() {
       :description="search ? 'Coba kata kunci nama atau email lainnya.' : 'Profil pasien akan muncul setelah ditautkan ke akun Nakes Anda.'"
     />
 
-    <section v-else class="overflow-hidden rounded-card border border-line bg-surface shadow-[var(--connect-shadow-card)]" aria-label="Daftar pasien">
-      <header class="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
-        <h2 class="text-sm font-semibold text-primary-dark">Daftar pasien</h2>
-        <span class="rounded-full bg-base px-2.5 py-1 text-xs text-muted">{{ filteredPatients.length }} pasien</span>
+    <section v-else class="min-w-0 rounded-card border border-line bg-surface p-4 shadow-[var(--connect-shadow-card)] sm:p-5" aria-label="Daftar pasien">
+      <header class="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p class="mb-1 text-xs font-medium text-primary">Data pasien</p>
+          <h2 class="text-lg font-semibold text-primary-dark">Daftar pasien</h2>
+        </div>
+        <span class="text-sm text-muted">{{ filteredPatients.length }} pasien</span>
       </header>
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1440px] border-collapse text-left">
-          <thead class="bg-base/70">
-            <tr class="text-xs font-medium text-muted">
-              <th class="px-5 py-4">Nama pasien</th>
-              <th class="px-5 py-4">Email</th>
-              <th class="px-5 py-4">Kondisi</th>
-              <th class="px-5 py-4">Nomor telepon</th>
-              <th class="px-5 py-4">Tanggal lahir</th>
-              <th class="px-5 py-4">Jenis kelamin</th>
-              <th class="px-5 py-4">Catatan awal</th>
-              <th class="px-5 py-4">Alamat</th>
-              <th class="px-5 py-4 text-center">Sesi terapi</th>
+          <thead>
+            <tr class="border-b border-line text-xs font-medium text-muted">
+              <th class="px-3 py-3">Nama pasien</th>
+              <th class="px-3 py-3">Email</th>
+              <th class="px-3 py-3">Kondisi</th>
+              <th class="px-3 py-3">Nomor telepon</th>
+              <th class="px-3 py-3">Tanggal lahir</th>
+              <th class="px-3 py-3">Jenis kelamin</th>
+              <th class="px-3 py-3">Catatan awal</th>
+              <th class="px-3 py-3">Alamat</th>
+              <th class="px-3 py-3 text-center">Sesi terapi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-line/70">
-            <tr v-for="patient in filteredPatients" :key="patient.id" class="align-top text-sm text-ink transition hover:bg-base/40">
-              <td class="whitespace-nowrap px-5 py-4 font-medium text-primary-dark">{{ patient.namaLengkap || 'Tidak tersedia' }}</td>
-              <td class="px-5 py-4">{{ patient.user?.email || 'Tidak tersedia' }}</td>
-              <td class="max-w-60 px-5 py-4">
+            <tr v-for="patient in filteredPatients" :key="patient.id" class="align-top text-sm text-ink hover:bg-base/50">
+              <td class="whitespace-nowrap px-3 py-5 font-medium text-primary-dark">{{ patient.namaLengkap || 'Tidak tersedia' }}</td>
+              <td class="px-3 py-5">{{ patient.user?.email || 'Tidak tersedia' }}</td>
+              <td class="max-w-60 px-3 py-5">
                 <button
                   v-if="patient.kondisiMedis"
                   class="block max-w-56 truncate text-left text-primary hover:underline"
@@ -217,10 +220,10 @@ async function connectPatient() {
                 </button>
                 <span v-else>Belum dicantumkan</span>
               </td>
-              <td class="whitespace-nowrap px-5 py-4">{{ patient.nomorTelepon || 'Tidak tersedia' }}</td>
-              <td class="whitespace-nowrap px-5 py-4">{{ patient.tanggalLahir ? new Date(patient.tanggalLahir).toLocaleDateString('id-ID') : 'Tidak tersedia' }}</td>
-              <td class="whitespace-nowrap px-5 py-4">{{ formatGender(patient.jenisKelamin) }}</td>
-              <td class="max-w-72 px-5 py-4">
+              <td class="whitespace-nowrap px-3 py-5">{{ patient.nomorTelepon || 'Tidak tersedia' }}</td>
+              <td class="whitespace-nowrap px-3 py-5">{{ patient.tanggalLahir ? new Date(patient.tanggalLahir).toLocaleDateString('id-ID') : 'Tidak tersedia' }}</td>
+              <td class="whitespace-nowrap px-3 py-5">{{ formatGender(patient.jenisKelamin) }}</td>
+              <td class="max-w-72 px-3 py-5">
                 <button
                   v-if="patient.catatanAwal"
                   class="block max-w-64 truncate text-left text-primary hover:underline"
@@ -231,7 +234,7 @@ async function connectPatient() {
                 </button>
                 <span v-else>Belum ada catatan awal.</span>
               </td>
-              <td class="max-w-72 px-5 py-4">
+              <td class="max-w-72 px-3 py-5">
                 <button
                   v-if="patient.alamat"
                   class="block max-w-64 truncate text-left text-primary hover:underline"
@@ -242,7 +245,7 @@ async function connectPatient() {
                 </button>
                 <span v-else>Tidak tersedia</span>
               </td>
-              <td class="px-5 py-4 text-center">{{ patient._count?.therapySessions ?? 0 }}</td>
+              <td class="px-3 py-5 text-center">{{ patient._count?.therapySessions ?? 0 }}</td>
             </tr>
           </tbody>
         </table>

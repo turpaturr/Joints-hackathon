@@ -17,7 +17,8 @@ let clockInterval
 const navItems = [
   { label: 'Dashboard', name: 'monitoring-overview', icon: 'dashboard' },
   { label: 'Pasien', name: 'monitoring-patients', icon: 'patients' },
-  { label: 'Terapi', name: 'monitoring-therapy', icon: 'therapy' },
+  { label: 'Gerakan terapi', name: 'monitoring-movements', icon: 'therapy' },
+  { label: 'Tugaskan terapi', name: 'monitoring-prescriptions', icon: 'therapy' },
   { label: 'Riwayat terapi', name: 'monitoring-reports', icon: 'history' },
   { label: 'Akun', name: 'monitoring-account', icon: 'account' },
 ]
