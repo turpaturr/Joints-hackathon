@@ -2,7 +2,21 @@ import { request } from './api';
 
 export interface PatientConnectionStatus {
   connected: boolean;
-  nakes: { namaLengkap: string } | null;
+  nakes: {
+    namaLengkap: string;
+    email?: string | null;
+    nomorTelepon?: string | null;
+    spesialisasi?: string | null;
+    faskes?: string | null;
+    nomorRegis?: string | null;
+    user?: { email?: string | null } | null;
+    nakesProfile?: {
+      spesialisasi?: string | null;
+      faskes?: string | null;
+      nomorRegis?: string | null;
+      nomorTelepon?: string | null;
+    } | null;
+  } | null;
 }
 
 export interface PatientConnectionCode {

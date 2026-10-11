@@ -6,9 +6,8 @@ import {
   History,
   MessageCircle,
   Pill,
-  UserRound,
 } from 'lucide-react-native';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authStore } from '@/services/AuthServices/authStore';
 
@@ -33,7 +32,7 @@ export default function HomeScreen() {
         >
           <View style={{ flex: 1 }}>
             <Text style={{ ...typography.display, color: colors.textPrimary }}>
-              Halo, Roja
+              Hai, {authStore.user?.namaLengkap || 'Pasien'}
             </Text>
             <Text
               style={{
@@ -46,7 +45,11 @@ export default function HomeScreen() {
             </Text>
           </View>
 
-          <View
+          <TouchableOpacity
+            accessibilityLabel="Buka profil saya"
+            accessibilityRole="button"
+            disabled={authStore.user?.role !== 'PATIENT'}
+            onPress={() => router.push('/profile')}
             style={{
               width: 48,
               height: 48,
@@ -57,8 +60,12 @@ export default function HomeScreen() {
               marginLeft: spacing.md,
             }}
           >
-            <Text style={{ ...typography.h2, color: colors.white }}>R</Text>
-          </View>
+            <Text style={{ ...typography.h2, color: colors.white }}>
+              {authStore.user?.namaLengkap?.slice(0, 1).toUpperCase() ||
+                authStore.user?.email?.slice(0, 1).toUpperCase() ||
+                'P'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Divider */}
@@ -240,14 +247,6 @@ export default function HomeScreen() {
             description="Ngobrol dulu sebelum konsultasi"
             onPress={() => router.push('/consult')}
           />
-          {authStore.user?.role === 'PATIENT' ? (
-            <FeatureCard
-              icon={UserRound}
-              title="Hubungkan ke Nakes"
-              description="Tampilkan kode untuk menghubungkan akunmu"
-              onPress={() => router.push('/connection')}
-            />
-          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>

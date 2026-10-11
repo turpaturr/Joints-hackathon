@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   email: string;
   role: "PATIENT" | "NAKES";
+  namaLengkap?: string;
 }
 
 export interface LoginPayload {
