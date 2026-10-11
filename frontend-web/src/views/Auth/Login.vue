@@ -28,15 +28,15 @@ async function handleSubmit({ email, password }) {
 
 <template>
   <AuthLayout
-    title="Welcome back"
-    description="Sign in to see your patients' gyroscope data in one dashboard."
+    title="Selamat datang kembali"
+    description="Masuk untuk memantau pasien dan meninjau aktivitas terapi dalam satu dashboard."
   >
     <AuthForm ref="formRef" @submit="handleSubmit" />
 
     <template #footer>
-      <p class="auth-footer">
-        Don't have an account?
-        <RouterLink to="/register" class="auth-link">Create one</RouterLink>
+      <p class="mt-6 text-sm text-muted">
+        Belum memiliki akun?
+        <RouterLink to="/register" class="font-medium text-primary underline underline-offset-4">Daftar</RouterLink>
       </p>
     </template>
   </AuthLayout>

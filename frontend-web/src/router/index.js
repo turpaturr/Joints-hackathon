@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Landing from '../views/Landing.vue'
 import DashboardLayout from '../layouts/DashboardLayout.vue'
 
 function getSessionToken() {
@@ -12,11 +11,7 @@ function getSessionToken() {
 }
 
 const routes = [
-    {
-        path: '/',
-        name: 'Landing',
-        component: Landing
-    },
+    { path: '/', redirect: '/login' },
     {
         path: '/login',
         name: 'login',
@@ -36,35 +31,35 @@ const routes = [
                 path: '',
                 name: 'monitoring-overview',
                 component: () => import('../views/Monitoring/Index.vue'),
-                meta: { title: 'Overview' },
+                meta: { title: 'Dashboard' },
             },
             {
                 path: 'patients',
                 name: 'monitoring-patients',
                 component: () => import('../views/Patients/Index.vue'),
-                meta: { title: 'Patients' },
+                meta: { title: 'Pasien' },
             },
             {
                 path: 'therapy',
                 name: 'monitoring-therapy',
                 component: () => import('../views/Therapy/Index.vue'),
-                meta: { title: 'Therapy' },
+                meta: { title: 'Terapi' },
             },
             {
                 path: 'reports',
                 name: 'monitoring-reports',
                 component: () => import('../views/Reports/Index.vue'),
-                meta: { title: 'Reports' },
+                meta: { title: 'Riwayat terapi' },
             },
             {
                 path: 'account',
                 name: 'monitoring-account',
                 component: () => import('../views/Account/Index.vue'),
-                meta: { title: 'Account' },
+                meta: { title: 'Akun' },
             },
         ],
     },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
+    { path: '/:pathMatch(.*)*', redirect: '/login' },
 ]
 
 const router = createRouter({

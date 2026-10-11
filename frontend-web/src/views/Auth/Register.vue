@@ -30,13 +30,13 @@ function validate() {
   errors.confirmPassword = ''
   errors.form = ''
 
-  if (!form.namaLengkap.trim()) errors.namaLengkap = 'Full name is required.'
-  if (!form.email) errors.email = 'Email is required.'
-  else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = 'Enter a valid email.'
-  if (!form.password) errors.password = 'Password is required.'
-  else if (form.password.length < 6) errors.password = 'Password must be at least 6 characters.'
-  if (!form.confirmPassword) errors.confirmPassword = 'Please confirm your password.'
-  else if (form.confirmPassword !== form.password) errors.confirmPassword = 'Passwords do not match.'
+  if (!form.namaLengkap.trim()) errors.namaLengkap = 'Nama lengkap wajib diisi.'
+  if (!form.email) errors.email = 'Email wajib diisi.'
+  else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = 'Masukkan alamat email yang valid.'
+  if (!form.password) errors.password = 'Kata sandi wajib diisi.'
+  else if (form.password.length < 6) errors.password = 'Kata sandi minimal 6 karakter.'
+  if (!form.confirmPassword) errors.confirmPassword = 'Konfirmasi kata sandi wajib diisi.'
+  else if (form.confirmPassword !== form.password) errors.confirmPassword = 'Kata sandi tidak sama.'
 
   return !errors.namaLengkap && !errors.email && !errors.password && !errors.confirmPassword
 }
@@ -67,7 +67,7 @@ async function handleSubmit() {
 
     await router.push({ name: 'login', query: { registered: '1' } })
   } catch (error) {
-    errors.form = error?.message || 'Unable to create account. Please try again.'
+    errors.form = error?.message || 'Akun tidak dapat dibuat. Silakan coba kembali.'
   } finally {
     loading.value = false
   }
@@ -75,89 +75,39 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <AuthLayout
-    title="Create account"
-    description="Set up a monitoring account for your clinic team and start tracking patient care."
-  >
-    <form class="register-form" novalidate @submit.prevent="handleSubmit">
-      <label class="register-field">
-        <span>Full name</span>
-        <input v-model.trim="form.namaLengkap" type="text" autocomplete="name" placeholder="Dr. Andi Wijaya" />
-        <small v-if="errors.namaLengkap" class="register-error">{{ errors.namaLengkap }}</small>
+  <AuthLayout title="Buat akun Nakes" description="Daftarkan akun tenaga kesehatan untuk memulai pemantauan pasien.">
+    <form class="grid gap-4" novalidate @submit.prevent="handleSubmit">
+      <label class="grid gap-2 text-sm font-medium text-ink" for="name">
+        Nama lengkap
+        <input id="name" v-model.trim="form.namaLengkap" class="h-12 rounded-control border border-line bg-surface px-3 text-sm font-normal focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" type="text" autocomplete="name" />
+        <small v-if="errors.namaLengkap" class="font-normal text-danger">{{ errors.namaLengkap }}</small>
       </label>
-
-      <label class="register-field">
-        <span>Email</span>
-        <input v-model.trim="form.email" type="email" autocomplete="email" placeholder="name@clinic.com" />
-        <small v-if="errors.email" class="register-error">{{ errors.email }}</small>
+      <label class="grid gap-2 text-sm font-medium text-ink" for="email">
+        Email
+        <input id="email" v-model.trim="form.email" class="h-12 rounded-control border border-line bg-surface px-3 text-sm font-normal focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" type="email" autocomplete="email" />
+        <small v-if="errors.email" class="font-normal text-danger">{{ errors.email }}</small>
       </label>
-
-      <label class="register-field">
-        <span>Password</span>
-        <span class="register-password">
-          <input
-            v-model="form.password"
-            :type="showPassword ? 'text' : 'password'"
-            autocomplete="new-password"
-            placeholder="Create a password"
-          />
-          <button
-            class="register-password-toggle"
-            type="button"
-            :aria-label="showPassword ? 'Hide password' : 'Show password'"
-            @click="showPassword = !showPassword"
-          >
-            <svg v-if="!showPassword" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 4.4-1M9.9 9.9a3 3 0 0 0 4.2 4.2" />
-            </svg>
-          </button>
+      <label class="grid gap-2 text-sm font-medium text-ink" for="password">
+        Kata sandi
+        <span class="relative block">
+          <input id="password" v-model="form.password" class="h-12 w-full rounded-control border border-line bg-surface px-3 pr-20 text-sm font-normal focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" />
+          <button class="absolute inset-y-0 right-1 min-h-11 rounded-control px-2 text-xs text-muted hover:bg-base" type="button" :aria-label="showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'" @click="showPassword = !showPassword">{{ showPassword ? 'Sembunyikan' : 'Lihat' }}</button>
         </span>
-        <small v-if="errors.password" class="register-error">{{ errors.password }}</small>
+        <small v-if="errors.password" class="font-normal text-danger">{{ errors.password }}</small>
+      </label>
+      <label class="grid gap-2 text-sm font-medium text-ink" for="confirm-password">
+        Konfirmasi kata sandi
+        <input id="confirm-password" v-model="form.confirmPassword" class="h-12 rounded-control border border-line bg-surface px-3 text-sm font-normal focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" type="password" autocomplete="new-password" />
+        <small v-if="errors.confirmPassword" class="font-normal text-danger">{{ errors.confirmPassword }}</small>
       </label>
 
-      <label class="register-field">
-        <span>Confirm password</span>
-        <input v-model="form.confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat your password" />
-        <small v-if="errors.confirmPassword" class="register-error">{{ errors.confirmPassword }}</small>
-      </label>
-
-      <p v-if="errors.form" class="register-form-error" role="alert">{{ errors.form }}</p>
-
-      <button class="register-submit" type="submit" :disabled="loading">
-        <span v-if="!loading">Create account</span>
-        <span v-else class="register-spinner" aria-label="Creating account"></span>
+      <p v-if="errors.form" class="rounded-panel border border-danger/20 bg-danger/5 p-3 text-sm text-danger" role="alert">{{ errors.form }}</p>
+      <button class="min-h-12 rounded-panel bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:bg-disabled" type="submit" :disabled="loading">
+        {{ loading ? 'Membuat akun…' : 'Buat akun' }}
       </button>
     </form>
-
     <template #footer>
-      <p class="auth-footer">
-        Already have an account?
-        <RouterLink to="/login" class="auth-link">Sign in</RouterLink>
-      </p>
+      <p class="mt-6 text-sm text-muted">Sudah memiliki akun? <RouterLink to="/login" class="font-medium text-primary underline underline-offset-4">Masuk</RouterLink></p>
     </template>
   </AuthLayout>
 </template>
-
-<style>
-.register-form { display: flex; flex-direction: column; gap: 0.875rem; }
-.register-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--foreground); font-size: 0.8125rem; font-weight: 500; }
-.register-field input { width: 100%; height: 40px; padding: 0 0.75rem; border: 1px solid var(--input); border-radius: 6px; outline: none; color: var(--foreground); background: transparent; font: inherit; font-size: 0.875rem; transition: border-color 0.15s, box-shadow 0.15s; }
-.register-field input::placeholder { color: var(--muted-foreground); }
-.register-field input:hover { border-color: #d4d4d8; }
-.register-field input:focus { border-color: var(--ring); box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1); }
-.register-password { position: relative; display: block; }
-.register-password input { padding-right: 3rem; }
-.register-password-toggle { position: absolute; top: 50%; right: 4px; display: grid; width: 32px; height: 32px; place-items: center; transform: translateY(-50%); border: 0; border-radius: 4px; color: var(--muted-foreground); background: transparent; cursor: pointer; }
-.register-password-toggle:hover { color: var(--foreground); background: var(--muted); }
-.register-error { color: var(--destructive); font-size: 0.75rem; font-weight: 500; }
-.register-form-error { margin: 0; padding: 0.5rem 0.75rem; border: 1px solid #fecaca; border-radius: 6px; color: var(--destructive); background: #fef2f2; font-size: 0.75rem; }
-.register-submit { display: grid; min-height: 40px; place-items: center; margin-top: 0.125rem; border: 1px solid var(--primary); border-radius: 6px; color: var(--primary-foreground); background: var(--primary); font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
-.register-submit:disabled { opacity: 0.7; cursor: wait; }
-.register-spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: register-spin 0.7s linear infinite; }
-@keyframes register-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .register-field input, .register-spinner { transition: none; animation: none; } }
-</style>

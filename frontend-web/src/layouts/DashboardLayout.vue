@@ -15,20 +15,21 @@ const localNow = ref(new Date())
 let clockInterval
 
 const navItems = [
-  { label: 'Overview', name: 'monitoring-overview', icon: 'OV' },
-  { label: 'Patients', name: 'monitoring-patients', icon: 'PT' },
-  { label: 'Therapy', name: 'monitoring-therapy', icon: 'TH' },
-  { label: 'Reports', name: 'monitoring-reports', icon: 'RP' },
+  { label: 'Dashboard', name: 'monitoring-overview', icon: 'dashboard' },
+  { label: 'Pasien', name: 'monitoring-patients', icon: 'patients' },
+  { label: 'Terapi', name: 'monitoring-therapy', icon: 'therapy' },
+  { label: 'Riwayat terapi', name: 'monitoring-reports', icon: 'history' },
+  { label: 'Akun', name: 'monitoring-account', icon: 'account' },
 ]
 
-const title = computed(() => route.meta.title || 'Monitoring')
+const title = computed(() => route.meta.title || 'Dashboard')
 const displayName = computed(() => profile.value?.namaLengkap || profile.value?.email || 'Nakes')
 const initial = computed(() => displayName.value.slice(0, 1).toUpperCase())
 const deviceTime = computed(() =>
-  new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(localNow.value),
+  new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(localNow.value),
 )
 const deviceDate = computed(() =>
-  new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short' }).format(localNow.value),
+  new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }).format(localNow.value),
 )
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
@@ -40,7 +41,7 @@ function closeOverlays() {
 function logout() {
   clearSession()
   closeOverlays()
-  router.push('/')
+  router.push('/login')
 }
 
 function handleKeydown(event) {
@@ -62,183 +63,146 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="dashboard-frame">
+  <div class="min-h-screen bg-base text-ink">
     <button
       v-if="mobileMenuOpen"
-      class="mobile-scrim"
-      aria-label="Close navigation menu"
+      class="fixed inset-0 z-40 bg-ink/30 lg:hidden"
+      aria-label="Tutup navigasi"
       @click="closeOverlays"
     />
 
-    <aside :class="['sidebar', { collapsed, 'mobile-open': mobileMenuOpen }]">
-      <RouterLink class="brand" to="/monitoring" @click="closeOverlays">
-        <span class="brand-icon">C</span>
-        <span v-if="!collapsed || mobileMenuOpen" class="brand-copy">
-          <small>MONITORING</small>
-          <strong>connect</strong>
-        </span>
+   <aside
+      :class="[
+        'fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r border-slate-200 bg-white px-4 py-5 text-slate-700 transition-transform duration-200 lg:translate-x-0',
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
+        collapsed ? 'lg:w-[76px]' : 'lg:w-[248px]',
+      ]"
+    >
+       <RouterLink
+        :class="[
+          'flex items-center justify-center text-white no-underline transition-all duration-200 overflow-hidden',
+          collapsed && !mobileMenuOpen ? 'h-16' : 'h-28 px-2',
+        ]"
+        to="/monitoring"
+        aria-label="Connect - Dashboard"
+        @click="closeOverlays"
+      >
+        <img
+          src="/Connect.png"
+          alt="Connect"
+          :class="[
+            'shrink-0 object-contain transition-all duration-200',
+            collapsed && !mobileMenuOpen ? 'size-10 scale-100' : 'w-full max-w-[210px] scale-70',
+          ]"
+        >
       </RouterLink>
 
-      <button class="collapse-toggle" :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'" @click="collapsed = !collapsed">
-        <span>{{ collapsed ? '›' : '‹' }}</span>
-        <span v-if="!collapsed">Collapse</span>
+      <button
+        class="mt-4 hidden min-h-11 items-center gap-3 rounded-control px-3 text-left text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-900 lg:flex"
+        :aria-label="collapsed ? 'Perluas menu samping' : 'Ringkas menu samping'"
+        @click="collapsed = !collapsed"
+      >
+        <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path v-if="collapsed" d="m9 18 6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
+          <path v-else d="m15 18-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span v-if="!collapsed">Ringkas menu</span>
       </button>
 
-      <nav class="nav-list" aria-label="Dashboard navigation">
+      <nav class="mt-4 grid gap-1.5" aria-label="Navigasi utama">
         <RouterLink
           v-for="item in navItems"
           :key="item.name"
           :to="{ name: item.name }"
-          :class="['nav-link', { active: route.name === item.name }]"
-          :title="collapsed ? item.label : undefined"
+          :class="[
+            'flex min-h-11 items-center gap-3 rounded-control px-3 text-sm font-medium no-underline transition-colors',
+            route.name === item.name 
+              ? 'bg-[#1679ab] text-white shadow-sm' 
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+          ]"
+          :title="collapsed && !mobileMenuOpen ? item.label : undefined"
           @click="closeOverlays"
         >
-          <span class="nav-icon">{{ item.icon }}</span>
+          <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <template v-if="item.icon === 'dashboard'">
+              <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+              <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+              <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+              <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+            </template>
+            <template v-else-if="item.icon === 'patients'">
+              <path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20" />
+              <circle cx="9.5" cy="7" r="4" />
+              <path d="M17 11a4 4 0 0 0 0-8M21 20v-1.5a4 4 0 0 0-3-3.87" />
+            </template>
+            <template v-else-if="item.icon === 'therapy'">
+              <path d="M12 3v4m0 10v4M3 12h4m10 0h4" />
+              <path d="m5.64 5.64 2.83 2.83m7.06 7.06 2.83 2.83m0-12.72-2.83 2.83m-7.06 7.06-2.83 2.83" />
+              <circle cx="12" cy="12" r="3" />
+            </template>
+            <template v-else-if="item.icon === 'history'">
+              <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
+              <path d="M3 3v5h5m4-1v5l3 2" />
+            </template>
+            <template v-else>
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21a8 8 0 0 1 16 0" />
+            </template>
+          </svg>
           <span v-if="!collapsed || mobileMenuOpen">{{ item.label }}</span>
         </RouterLink>
       </nav>
-
     </aside>
 
-    <div class="dashboard-main">
-      <header class="topbar">
-        <div class="topbar-leading">
-          <button class="mobile-menu-toggle" aria-label="Open navigation menu" @click="mobileMenuOpen = true">
-            <span></span><span></span><span></span>
+    <div :class="['min-h-screen transition-[margin] duration-200', collapsed ? 'lg:ml-[76px]' : 'lg:ml-[248px]']">
+      <header class="sticky top-0 z-30 flex min-h-[72px] items-center justify-between gap-3 border-b border-line bg-base/95 px-4 backdrop-blur sm:px-6 lg:px-8">
+        <div class="flex min-w-0 items-center gap-3">
+          <button
+            class="grid size-11 shrink-0 place-items-center rounded-panel border border-line bg-surface text-primary-dark lg:hidden"
+            aria-label="Buka navigasi"
+            :aria-expanded="mobileMenuOpen"
+            @click="mobileMenuOpen = true"
+          >
+            <span class="text-xl" aria-hidden="true">☰</span>
           </button>
-          <div>
-            <p class="topbar-kicker">CONNECT / CARE MANAGEMENT</p>
-            <h1>{{ title }}</h1>
+          <div class="min-w-0">
+            <p class="hidden text-xs font-medium text-muted sm:block">Connect · Pemantauan Nakes</p>
+            <h1 class="truncate text-lg font-semibold text-primary-dark sm:text-xl">{{ title }}</h1>
           </div>
         </div>
 
-        <div class="topbar-right">
-          <div class="clock-chip" aria-label="Local device date and time">
-            <strong>{{ deviceTime }}</strong>
-            <span>{{ deviceDate }} · {{ timeZone }}</span>
-          </div>
-          <div class="profile-menu-wrap">
+        <div class="flex items-center gap-2 sm:gap-4">
+          <div class="relative">
             <button
-              class="profile-trigger"
+              class="flex min-h-11 items-center gap-2 rounded-panel px-1.5 text-left hover:bg-surface sm:gap-3 sm:px-2"
               :aria-expanded="profileMenuOpen"
               aria-haspopup="menu"
               @click="profileMenuOpen = !profileMenuOpen"
             >
-              <span class="avatar">{{ initial }}</span>
-              <span class="profile-trigger-copy"><strong>{{ displayName }}</strong><small>Nakes account</small></span>
-              <span class="chevron">⌄</span>
+              <span class="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-white">{{ initial }}</span>
+              <span class="hidden max-w-36 sm:grid">
+                <strong class="truncate text-sm font-medium text-ink">{{ displayName }}</strong>
+                <small class="text-xs text-muted">Akun Nakes</small>
+              </span>
+              <span class="hidden text-muted sm:inline" aria-hidden="true">⌄</span>
             </button>
-            <div v-if="profileMenuOpen" class="profile-menu" role="menu">
-              <RouterLink to="/monitoring/account" role="menuitem" @click="closeOverlays">
-                <span>Account</span><small>Profile & security</small>
+            <div v-if="profileMenuOpen" class="absolute right-0 top-full z-40 mt-2 grid w-52 rounded-panel border border-line bg-surface p-1.5 shadow-lg" role="menu">
+              <RouterLink class="grid min-h-11 content-center rounded-control px-3 text-sm text-ink no-underline hover:bg-base" to="/monitoring/account" role="menuitem" @click="closeOverlays">
+                Akun dan keamanan
               </RouterLink>
-              <button role="menuitem" @click="logout">Log out</button>
+              <button class="min-h-11 rounded-control px-3 text-left text-sm text-danger hover:bg-danger/5" role="menuitem" @click="logout">Keluar</button>
             </div>
           </div>
         </div>
       </header>
 
-      <main class="page-content">
-        <div v-if="monitoringData.error" class="global-alert" role="alert">
+      <main class="mx-auto max-w-[1440px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <div v-if="monitoringData.error" class="flex flex-col justify-between gap-3 rounded-panel border border-warning/30 bg-warning/5 p-4 text-sm text-ink sm:flex-row sm:items-center" role="alert">
           <span>{{ monitoringData.error }}</span>
-          <button @click="refreshMonitoringData(session?.token)">Retry</button>
+          <button class="min-h-11 rounded-panel border border-line bg-surface px-4 font-medium text-primary hover:bg-base" @click="refreshMonitoringData(session?.token)">Coba lagi</button>
         </div>
         <RouterView />
       </main>
     </div>
   </div>
 </template>
-
-<style>
-.dashboard-frame {
-  --navy: #0d47a1;
-  --blue: #2196f3;
-  --soft-blue: #90caf9;
-  --ice: #e3f2fd;
-  display: flex;
-  min-height: 100vh;
-  color: #16324f;
-  background: #edf6ff;
-  font-family: Inter, 'Segoe UI', sans-serif;
-}
-.dashboard-frame * { box-sizing: border-box; }
-.sidebar {
-  position: fixed;
-  z-index: 30;
-  inset: 0 auto 0 0;
-  display: flex;
-  width: 248px;
-  flex-direction: column;
-  padding: 22px 15px 18px;
-  color: #fff;
-  background: linear-gradient(165deg, #0d47a1, #123e85);
-  transition: width 220ms ease, transform 220ms ease;
-}
-.sidebar.collapsed { width: 82px; }
-.brand { display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 3px 7px; color: inherit; text-decoration: none; }
-.brand-icon { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border: 1px solid #ffffff35; border-radius: 11px; background: #ffffff1c; font-weight: 800; }
-.brand-copy { display: grid; gap: 3px; }
-.brand-copy small, .topbar-kicker { font-size: 9px; font-weight: 800; letter-spacing: .13em; }
-.brand-copy { font-size: 19px; }
-.collapse-toggle { display: flex; align-items: center; gap: 10px; margin: 24px 0 10px; padding: 9px 11px; border: 0; border-radius: 10px; color: #d9e8ff; background: transparent; text-align: left; cursor: pointer; }
-.collapse-toggle:hover, .nav-link:hover { background: #ffffff18; }
-.collapse-toggle span:first-child { width: 18px; text-align: center; font-size: 21px; line-height: 1; }
-.nav-list { display: grid; gap: 7px; }
-.nav-link { display: flex; min-height: 43px; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid transparent; border-radius: 11px; color: #e5f1ff; font-size: 13px; font-weight: 650; text-decoration: none; transition: background 160ms, border-color 160ms; }
-.nav-link.active { border-color: #ffffff2e; background: #ffffff20; box-shadow: inset 3px 0 #90caf9; }
-.nav-icon { display: grid; width: 26px; height: 26px; flex: 0 0 26px; place-items: center; border-radius: 8px; color: #c9e4ff; background: #ffffff12; font-size: 9px; font-weight: 800; }
-.dashboard-main { width: calc(100% - 248px); min-width: 0; min-height: 100vh; margin-left: 248px; transition: width 220ms ease, margin-left 220ms ease; }
-.sidebar.collapsed ~ .dashboard-main { width: calc(100% - 82px); margin-left: 82px; }
-.topbar { position: sticky; z-index: 20; top: 0; display: flex; min-height: 82px; align-items: center; justify-content: space-between; gap: 18px; padding: 13px clamp(18px, 3vw, 38px); border-bottom: 1px solid #d9e9fa; background: #f7fbffed; backdrop-filter: blur(16px); }
-.topbar-leading, .topbar-right, .profile-trigger { display: flex; align-items: center; }
-.topbar-leading { gap: 13px; }
-.topbar-kicker { margin: 0 0 4px; color: #4780b9; }
-.topbar h1 { margin: 0; color: #123e73; font-size: 20px; letter-spacing: -.02em; }
-.topbar-right { gap: 16px; }
-.clock-chip { display: grid; gap: 2px; padding: 7px 11px; border: 1px solid #d7e9f9; border-radius: 10px; color: #416482; background: #fff; font-variant-numeric: tabular-nums; transform-origin: center; transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
-.clock-chip:hover { z-index: 21; border-color: #9fcff2; box-shadow: 0 12px 28px #164d8326; transform: scale(1.22); }
-.clock-chip:hover strong { font-size: 14px; }
-.clock-chip:hover span { font-size: 10px; }
-.clock-chip:focus-visible { outline: 2px solid #2196f3; outline-offset: 2px; }
-.clock-chip strong { font-size: 11px; }.clock-chip span { color: #8298aa; font-size: 9px; }
-.profile-menu-wrap { position: relative; }
-.profile-trigger { gap: 9px; padding: 5px 8px; border: 1px solid transparent; border-radius: 12px; color: #173755; background: transparent; text-align: left; cursor: pointer; }
-.profile-trigger:hover, .profile-trigger[aria-expanded="true"] { border-color: #d7e9f9; background: white; }
-.avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(145deg, #2196f3, #0d47a1); font-weight: 800; }
-.profile-trigger-copy { display: grid; gap: 2px; }
-.profile-trigger-copy strong { max-width: 150px; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.profile-trigger-copy small { color: #71869a; font-size: 9px; }
-.chevron { color: #70879c; }
-.profile-menu { position: absolute; top: calc(100% + 9px); right: 0; display: grid; width: 190px; padding: 6px; border: 1px solid #d9e8f5; border-radius: 13px; background: white; box-shadow: 0 18px 48px #194d771f; }
-.profile-menu a, .profile-menu button { display: grid; gap: 3px; padding: 10px; border: 0; border-radius: 8px; color: #183b5b; background: transparent; text-align: left; text-decoration: none; cursor: pointer; }
-.profile-menu a:hover, .profile-menu button:hover { background: #edf6ff; }
-.profile-menu small { color: #7890a5; font-size: 10px; }
-.page-content { max-width: 1600px; margin: 0 auto; padding: 26px clamp(18px, 3vw, 38px) 42px; }
-.global-alert { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding: 12px 15px; border: 1px solid #f5d9a8; border-radius: 12px; color: #805519; background: #fff8e9; font-size: 13px; }
-.global-alert button { padding: 6px 10px; border: 1px solid #edd7ad; border-radius: 8px; color: inherit; background: white; cursor: pointer; }
-.mobile-menu-toggle { display: none; width: 38px; height: 38px; align-content: center; justify-items: center; gap: 4px; border: 1px solid #d7e8f6; border-radius: 10px; background: white; }
-.mobile-menu-toggle span { width: 17px; height: 2px; border-radius: 2px; background: #164d83; }
-.mobile-scrim { display: none; }
-@media (max-width: 760px) {
-  .sidebar, .sidebar.collapsed { width: 248px; transform: translateX(-100%); }
-  .sidebar.mobile-open { transform: translateX(0); }
-  .sidebar.collapsed .brand-copy, .sidebar.collapsed .collapse-toggle span:last-child, .sidebar.collapsed .nav-link > span:last-child, .sidebar.collapsed .sidebar-clock small, .sidebar.collapsed .sidebar-clock span { display: initial; }
-  .sidebar.collapsed .nav-link > span:last-child, .sidebar.collapsed .sidebar-clock small, .sidebar.collapsed .sidebar-clock span { display: block; }
-  .sidebar.collapsed .collapse-toggle { display: none; }
-  .dashboard-main, .sidebar.collapsed ~ .dashboard-main { width: 100%; margin-left: 0; }
-  .mobile-menu-toggle { display: grid; }
-  .mobile-scrim { position: fixed; z-index: 29; inset: 0; display: block; border: 0; background: #09243e75; backdrop-filter: blur(2px); }
-  .topbar { min-height: 72px; padding: 11px 15px; }
-  .topbar h1 { font-size: 17px; }
-  .topbar-kicker { font-size: 8px; }
-  .profile-trigger-copy, .chevron { display: none; }
-  .clock-chip { padding: 6px 8px; }.clock-chip span { max-width: 94px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .profile-trigger { padding: 2px; }
-  .topbar-right { gap: 6px; }
-  .page-content { padding: 18px 14px 30px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .sidebar, .dashboard-main, .nav-link, .clock-chip { transition: none; }
-  .clock-chip:hover { transform: none; }
-}
-</style>

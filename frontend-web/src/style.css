@@ -1,46 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
 :root {
-  --navy-blue: #0d47a1;
-  --bright-blue: #2196f3;
-  --soft-blue: #90caf9;
-  --light-blue: #e3f2fd;
-  --bg: #f7eedd;
-  --white: #ffffff;
-  --ink: #0f172a;
-  --muted: #5b6b7d;
-  --shadow: 0 24px 48px rgba(13, 71, 161, 0.08);
-  --line: rgba(13, 71, 161, 0.08);
-  --success: #16a34a;
-  --warning: #d97706;
-  --danger: #dc2626;
+  font-family: 'Poppins', sans-serif;
+  color: #0b2436;
+  background: #f7fafc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --connect-primary-dark: #074173;
+  --connect-primary: #1679ab;
+  --connect-accent-teal: #5debd7;
+  --connect-accent-lime: #c5ff95;
+  --connect-bg-base: #f7fafc;
+  --connect-surface: #ffffff;
+  --connect-text-primary: #0b2436;
+  --connect-text-secondary: #5c7a91;
+  --connect-border: #dce8f0;
+  --connect-disabled: #b8c5ce;
+  --connect-success: #2fae60;
+  --connect-danger: #d64545;
+  --connect-warning: #e3a008;
+  --connect-radius-sm: 8px;
+  --connect-radius-md: 12px;
+  --connect-radius-lg: 16px;
+  --connect-shadow-card: 0 2px 8px rgb(7 65 115 / 8%);
+}
+
+@theme inline {
+  --font-sans: 'Poppins', sans-serif;
+  --color-primary-dark: var(--connect-primary-dark);
+  --color-primary: var(--connect-primary);
+  --color-accent-teal: var(--connect-accent-teal);
+  --color-accent-lime: var(--connect-accent-lime);
+  --color-base: var(--connect-bg-base);
+  --color-surface: var(--connect-surface);
+  --color-ink: var(--connect-text-primary);
+  --color-muted: var(--connect-text-secondary);
+  --color-line: var(--connect-border);
+  --color-disabled: var(--connect-disabled);
+  --color-success: var(--connect-success);
+  --color-danger: var(--connect-danger);
+  --color-warning: var(--connect-warning);
+  --radius-control: var(--connect-radius-sm);
+  --radius-panel: var(--connect-radius-md);
+  --radius-card: var(--connect-radius-lg);
 }
 
 * {
   box-sizing: border-box;
 }
 
-html, body, #app {
-  margin: 0;
+html,
+body,
+#app {
+  min-width: 320px;
   min-height: 100%;
-  min-height: 100vh;
-  background: #f7eedd;
-  font-family: Inter, 'Segoe UI', sans-serif;
-  color: var(--ink);
+  margin: 0;
 }
 
 body {
+  min-height: 100vh;
+  background: var(--connect-bg-base);
+  font-size: 15px;
   line-height: 1.5;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
 button {
-  border: none;
   cursor: pointer;
 }
 
-img {
-  max-width: 100%;
-  display: block;
+button:disabled {
+  cursor: not-allowed;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--connect-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

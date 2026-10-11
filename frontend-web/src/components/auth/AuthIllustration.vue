@@ -1,14 +1,6 @@
 <template>
-  <div class="art" aria-hidden="true"></div>
+  <div
+    class="absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgba(255,255,255,0.7)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+    aria-hidden="true"
+  />
 </template>
-
-<style scoped>
-.art {
-  width: min(100%, 460px);
-  aspect-ratio: 1 / 1;
-  background-image: radial-gradient(circle, rgba(144, 202, 249, 0.35) 1px, transparent 1.5px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 85%);
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 85%);
-}
-</style>
