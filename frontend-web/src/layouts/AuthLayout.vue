@@ -15,13 +15,6 @@ const route = useRoute()
   <main class="grid min-h-screen bg-base lg:grid-cols-2">
     <section class="flex min-h-screen items-center justify-center px-4 py-12 sm:px-8">
       <div class="w-full max-w-md">
-        <RouterLink
-          v-if="route.name === 'register'"
-          to="/login"
-          class="mb-8 inline-flex min-h-11 items-center gap-2 rounded-panel px-3 text-sm font-medium text-muted hover:bg-white hover:text-primary-dark"
-        >
-          <span aria-hidden="true">←</span> Kembali ke masuk
-        </RouterLink>
         <AuthBrand />
         <header class="my-8">
           <h1 class="text-2xl font-semibold leading-8 text-primary-dark">{{ title }}</h1>

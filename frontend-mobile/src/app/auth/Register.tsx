@@ -2,11 +2,10 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { ApiError } from "@/services/api";
 import { register } from "@/services/AuthServices/auth.service";
-import { colors, radius, spacing, typography } from "@/theme";
+import { colors, spacing, typography } from "@/theme";
 import { router } from "expo-router";
-import { HeartPulse } from "lucide-react-native";
 import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen() {
@@ -61,34 +60,18 @@ export default function RegisterScreen() {
       >
         {/* Brand */}
         <View style={{ alignItems: "center" }}>
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: radius.full,
-              backgroundColor: colors.primary,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <HeartPulse size={28} color="#FFFFFF" strokeWidth={2.2} />
-          </View>
-
-          <Text
-            style={{
-              ...typography.h2,
-              color: colors.textPrimary,
-              marginTop: spacing.md,
-            }}
-          >
-            Connect
-          </Text>
+          <Image
+            source={require("@/assets/images/Connect.png")}
+            accessibilityLabel="Logo Connect"
+            resizeMode="contain"
+            style={{ width: 176, height: 176 }}
+          />
           <Text
             style={{
               ...typography.body,
               color: colors.textSecondary,
               textAlign: "center",
-              marginTop: spacing.xs,
+              marginTop: spacing.sm,
             }}
           >
             Teman setia Anda menjalani terapi mandiri di rumah.
