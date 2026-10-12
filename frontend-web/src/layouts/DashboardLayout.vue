@@ -33,6 +33,10 @@ const deviceDate = computed(() =>
   new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }).format(localNow.value),
 )
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+const deviceLocation = computed(() => {
+  const zoneCity = timeZone.split('/').at(-1)?.replaceAll('_', ' ')
+  return zoneCity || 'Lokasi perangkat'
+})
 
 function closeOverlays() {
   mobileMenuOpen.value = false
@@ -173,6 +177,16 @@ onUnmounted(() => {
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4">
+          <div class="group hidden origin-right items-center gap-2.5 rounded-panel border-r border-line pr-4 transition duration-200 hover:scale-110 hover:border-line hover:bg-surface hover:px-3 hover:py-2 hover:shadow-[var(--connect-shadow-card)] md:flex" aria-label="Waktu lokal perangkat">
+            <svg class="size-4 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
+            <span class="grid gap-0.5">
+              <span class="text-xs font-semibold leading-4 text-primary-dark transition group-hover:text-sm">{{ deviceLocation }} <span class="font-normal text-muted">· {{ deviceTime }}</span></span>
+              <span class="text-[10px] leading-3 text-muted transition group-hover:text-xs">{{ deviceDate }} · {{ timeZone }}</span>
+            </span>
+          </div>
           <div class="relative">
             <button
               class="flex min-h-11 items-center gap-2 rounded-panel px-1.5 text-left hover:bg-surface sm:gap-3 sm:px-2"
