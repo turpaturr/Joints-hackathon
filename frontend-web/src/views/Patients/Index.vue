@@ -3,6 +3,9 @@ import { computed, ref } from 'vue'
 import { monitoringData, refreshMonitoringData } from '../../composables/useMonitoringData'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
+import PatientConnectionModal from '../../components/patients/PatientConnectionModal.vue'
+import PatientTable from '../../components/patients/PatientTable.vue'
+import PatientTextModal from '../../components/patients/PatientTextModal.vue'
 import { getSession } from '../../services/auth.api'
 import { redeemPatientCode } from '../../services/connection.api'
 
@@ -14,6 +17,7 @@ const connecting = ref(false)
 const showAddPatientModal = ref(false)
 const longTextModal = ref(null)
 const session = getSession()
+
 const filteredPatients = computed(() => {
   const query = search.value.trim().toLowerCase()
   if (!query) return monitoringData.patients
@@ -22,13 +26,6 @@ const filteredPatients = computed(() => {
       .some((value) => value?.toLowerCase().includes(query)),
   )
 })
-
-function formatGender(value) {
-  const normalized = value?.trim().toUpperCase()
-  if (normalized === 'LAKI_LAKI') return 'Pria'
-  if (normalized === 'PEREMPUAN') return 'Wanita'
-  return value || 'Tidak tersedia'
-}
 
 function openAddPatientModal() {
   connectionCode.value = ''
@@ -39,10 +36,6 @@ function openAddPatientModal() {
 function closeAddPatientModal() {
   if (connecting.value) return
   showAddPatientModal.value = false
-}
-
-function openLongTextModal(title, content, patientName) {
-  longTextModal.value = { title, content, patientName }
 }
 
 async function connectPatient() {
@@ -86,13 +79,9 @@ async function connectPatient() {
           <label class="flex min-h-11 w-full items-center gap-2 rounded-panel border border-line bg-surface px-3 text-muted focus-within:border-primary sm:w-72">
             <span aria-hidden="true" class="text-lg">⌕</span>
             <span class="sr-only">Cari pasien</span>
-            <input v-model="search" class="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" type="search" placeholder="Cari nama atau email" aria-label="Cari pasien" />
+            <input v-model="search" class="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" type="search" placeholder="Cari nama atau email" aria-label="Cari pasien">
           </label>
-          <button
-            class="min-h-11 shrink-0 rounded-control bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark"
-            type="button"
-            @click="openAddPatientModal"
-          >
+          <button class="min-h-11 shrink-0 rounded-control bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark" type="button" @click="openAddPatientModal">
             Tambah Pasien
           </button>
         </div>
@@ -103,74 +92,15 @@ async function connectPatient() {
       {{ connectionMessage }}
     </p>
 
-    <div
-      v-if="showAddPatientModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="presentation"
-      @click.self="closeAddPatientModal"
-    >
-      <section
-        aria-labelledby="add-patient-title"
-        aria-modal="true"
-        class="w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-[var(--connect-shadow-card)]"
-        role="dialog"
-      >
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <h2 id="add-patient-title" class="text-lg font-semibold text-primary-dark">Tambah Pasien</h2>
-            <p class="mt-1 text-sm leading-6 text-muted">Masukkan kode 6 digit yang ditampilkan di aplikasi pasien. Kode berlaku selama 10 menit.</p>
-          </div>
-          <button
-            aria-label="Tutup popup"
-            class="grid size-9 shrink-0 place-items-center rounded-control text-xl text-muted transition hover:bg-base hover:text-ink disabled:opacity-50"
-            type="button"
-            :disabled="connecting"
-            @click="closeAddPatientModal"
-          >
-            ×
-          </button>
-        </div>
-
-        <form class="mt-5 space-y-4" @submit.prevent="connectPatient">
-          <div>
-            <label class="mb-2 block text-sm font-medium text-primary-dark" for="patient-connection-code">Kode pasien</label>
-            <input
-              id="patient-connection-code"
-              v-model="connectionCode"
-              class="min-h-12 w-full rounded-control border border-line bg-surface px-3 text-center font-mono text-xl tracking-[0.3em] text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
-              type="text"
-              inputmode="numeric"
-              autocomplete="one-time-code"
-              maxlength="6"
-              pattern="[0-9]{6}"
-              placeholder="000000"
-              aria-describedby="connection-code-hint"
-              :disabled="connecting"
-              @input="connectionCode = $event.target.value.replace(/\D/g, '').slice(0, 6)"
-            >
-            <span id="connection-code-hint" class="sr-only">Masukkan enam angka dari aplikasi pasien.</span>
-            <p v-if="connectionError" class="mt-2 text-sm text-danger" role="alert">{{ connectionError }}</p>
-          </div>
-          <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button
-              class="min-h-11 rounded-control border border-line px-5 text-sm font-semibold text-primary-dark transition hover:bg-base disabled:opacity-50"
-              type="button"
-              :disabled="connecting"
-              @click="closeAddPatientModal"
-            >
-              Batal
-            </button>
-            <button
-              class="min-h-11 rounded-control bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:cursor-wait disabled:opacity-60"
-              type="submit"
-              :disabled="connecting"
-            >
-              {{ connecting ? 'Menghubungkan…' : 'Hubungkan' }}
-            </button>
-          </div>
-        </form>
-      </section>
-    </div>
+    <PatientConnectionModal
+      :open="showAddPatientModal"
+      :code="connectionCode"
+      :error="connectionError"
+      :connecting="connecting"
+      @update:code="connectionCode = $event"
+      @close="closeAddPatientModal"
+      @submit="connectPatient"
+    />
 
     <div v-if="monitoringData.loading && !monitoringData.patients.length" class="flex min-h-48 items-center justify-center gap-3 rounded-card border border-line bg-surface text-sm text-muted" role="status">
       <span class="size-5 animate-spin rounded-full border-2 border-line border-t-primary motion-reduce:animate-none" aria-hidden="true" />
@@ -181,107 +111,8 @@ async function connectPatient() {
       :title="search ? 'Pasien tidak ditemukan' : 'Belum ada pasien'"
       :description="search ? 'Coba kata kunci nama atau email lainnya.' : 'Profil pasien akan muncul setelah ditautkan ke akun Nakes Anda.'"
     />
+    <PatientTable v-else :patients="filteredPatients" @open-text="longTextModal = $event" />
 
-    <section v-else class="min-w-0 rounded-card border border-line bg-surface p-4 shadow-[var(--connect-shadow-card)] sm:p-5" aria-label="Daftar pasien">
-      <header class="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <p class="mb-1 text-xs font-medium text-primary">Data pasien</p>
-          <h2 class="text-lg font-semibold text-primary-dark">Daftar pasien</h2>
-        </div>
-        <span class="text-sm text-muted">{{ filteredPatients.length }} pasien</span>
-      </header>
-      <div class="overflow-x-auto">
-        <table class="w-full min-w-[1440px] border-collapse text-left">
-          <thead>
-            <tr class="border-b border-line text-xs font-medium text-muted">
-              <th class="px-3 py-3">Nama pasien</th>
-              <th class="px-3 py-3">Email</th>
-              <th class="px-3 py-3">Kondisi</th>
-              <th class="px-3 py-3">Nomor telepon</th>
-              <th class="px-3 py-3">Tanggal lahir</th>
-              <th class="px-3 py-3">Jenis kelamin</th>
-              <th class="px-3 py-3">Catatan awal</th>
-              <th class="px-3 py-3">Alamat</th>
-              <th class="px-3 py-3 text-center">Sesi terapi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-line/70">
-            <tr v-for="patient in filteredPatients" :key="patient.id" class="align-top text-sm text-ink hover:bg-base/50">
-              <td class="whitespace-nowrap px-3 py-5 font-medium text-primary-dark">{{ patient.namaLengkap || 'Tidak tersedia' }}</td>
-              <td class="px-3 py-5">{{ patient.user?.email || 'Tidak tersedia' }}</td>
-              <td class="max-w-60 px-3 py-5">
-                <button
-                  v-if="patient.kondisiMedis"
-                  class="block max-w-56 truncate text-left text-primary hover:underline"
-                  type="button"
-                  @click="openLongTextModal('Kondisi', patient.kondisiMedis, patient.namaLengkap)"
-                >
-                  {{ patient.kondisiMedis }}
-                </button>
-                <span v-else>Belum dicantumkan</span>
-              </td>
-              <td class="whitespace-nowrap px-3 py-5">{{ patient.nomorTelepon || 'Tidak tersedia' }}</td>
-              <td class="whitespace-nowrap px-3 py-5">{{ patient.tanggalLahir ? new Date(patient.tanggalLahir).toLocaleDateString('id-ID') : 'Tidak tersedia' }}</td>
-              <td class="whitespace-nowrap px-3 py-5">{{ formatGender(patient.jenisKelamin) }}</td>
-              <td class="max-w-72 px-3 py-5">
-                <button
-                  v-if="patient.catatanAwal"
-                  class="block max-w-64 truncate text-left text-primary hover:underline"
-                  type="button"
-                  @click="openLongTextModal('Catatan awal', patient.catatanAwal, patient.namaLengkap)"
-                >
-                  {{ patient.catatanAwal }}
-                </button>
-                <span v-else>Belum ada catatan awal.</span>
-              </td>
-              <td class="max-w-72 px-3 py-5">
-                <button
-                  v-if="patient.alamat"
-                  class="block max-w-64 truncate text-left text-primary hover:underline"
-                  type="button"
-                  @click="openLongTextModal('Alamat', patient.alamat, patient.namaLengkap)"
-                >
-                  {{ patient.alamat }}
-                </button>
-                <span v-else>Tidak tersedia</span>
-              </td>
-              <td class="px-3 py-5 text-center">{{ patient._count?.therapySessions ?? 0 }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div
-      v-if="longTextModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="presentation"
-      @click.self="longTextModal = null"
-    >
-      <section
-        aria-labelledby="long-text-title"
-        aria-modal="true"
-        class="w-full max-w-lg rounded-card border border-line bg-surface p-5 shadow-[var(--connect-shadow-card)]"
-        role="dialog"
-      >
-        <header class="flex items-start justify-between gap-4 border-b border-line pb-3">
-          <div class="min-w-0">
-            <p class="text-xs text-muted">{{ longTextModal.patientName }}</p>
-            <h2 id="long-text-title" class="mt-1 text-base font-semibold text-primary-dark">{{ longTextModal.title }}</h2>
-          </div>
-          <button
-            aria-label="Tutup informasi"
-            class="grid size-9 shrink-0 place-items-center rounded-control text-xl text-muted transition hover:bg-base hover:text-ink"
-            type="button"
-            @click="longTextModal = null"
-          >
-            ×
-          </button>
-        </header>
-        <p class="mt-4 max-h-[60vh] overflow-y-auto whitespace-pre-line break-words text-sm leading-6 text-ink">
-          {{ longTextModal.content }}
-        </p>
-      </section>
-    </div>
+    <PatientTextModal :modal="longTextModal" @close="longTextModal = null" />
   </div>
 </template>
