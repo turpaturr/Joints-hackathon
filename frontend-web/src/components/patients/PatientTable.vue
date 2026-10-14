@@ -2,10 +2,10 @@
 import { RouterLink } from 'vue-router'
 
 defineProps({
-  patients: { type: Array, default: () => [] },
+  patients: { type: Array, required: true },
 })
 
-const emit = defineEmits(['open-text'])
+const emit = defineEmits(['open-text', 'select'])
 
 function formatGender(value) {
   const normalized = value?.trim().toUpperCase()
@@ -13,14 +13,13 @@ function formatGender(value) {
   if (normalized === 'PEREMPUAN') return 'Wanita'
   return value || 'Tidak tersedia'
 }
-
 function showLongText(title, content, patientName) {
   emit('open-text', { title, content, patientName })
 }
 </script>
 
 <template>
-  <section class="min-w-0 rounded-card border border-line bg-surface p-4 shadow-(--connect-shadow-card) sm:p-5" aria-label="Daftar pasien">
+  <section class="min-w-0 rounded-card border border-line bg-surface p-4 shadow-[var(--connect-shadow-card)] sm:p-5" aria-label="Daftar pasien">
     <header class="mb-3 flex items-center justify-between gap-3">
       <div>
         <p class="mb-1 text-xs font-medium text-primary">Data pasien</p>
@@ -29,7 +28,7 @@ function showLongText(title, content, patientName) {
       <span class="text-sm text-muted">{{ patients.length }} pasien</span>
     </header>
     <div class="overflow-x-auto">
-      <table class="w-full min-w-360 border-collapse text-left">
+      <table class="w-full min-w-[1440px] border-collapse text-left">
         <thead>
           <tr class="border-b border-line text-xs font-medium text-muted">
             <th class="px-3 py-3">Nama pasien</th>
@@ -46,7 +45,13 @@ function showLongText(title, content, patientName) {
         </thead>
         <tbody class="divide-y divide-line/70">
           <tr v-for="patient in patients" :key="patient.id" class="align-top text-sm text-ink hover:bg-base/50">
-            <td class="whitespace-nowrap px-3 py-5 font-medium text-primary-dark">{{ patient.namaLengkap || 'Tidak tersedia' }}</td>
+            <td class="whitespace-nowrap px-3 py-5 font-medium">
+              <button
+                class="text-left text-primary-dark hover:underline"
+                type="button"
+                @click="emit('select', patient)"
+              >{{ patient.namaLengkap || 'Tidak tersedia' }}</button>
+            </td>
             <td class="px-3 py-5">{{ patient.user?.email || 'Tidak tersedia' }}</td>
             <td class="max-w-60 px-3 py-5">
               <button
@@ -54,7 +59,9 @@ function showLongText(title, content, patientName) {
                 class="block max-w-56 truncate text-left text-primary hover:underline"
                 type="button"
                 @click="showLongText('Kondisi', patient.kondisiMedis, patient.namaLengkap)"
-              >{{ patient.kondisiMedis }}</button>
+              >
+                {{ patient.kondisiMedis }}
+              </button>
               <span v-else>Belum dicantumkan</span>
             </td>
             <td class="whitespace-nowrap px-3 py-5">{{ patient.nomorTelepon || 'Tidak tersedia' }}</td>
@@ -80,10 +87,15 @@ function showLongText(title, content, patientName) {
             </td>
             <td class="px-3 py-5 text-center">{{ patient._count?.therapySessions ?? 0 }}</td>
             <td class="sticky right-0 bg-surface px-3 py-5 text-right">
-              <RouterLink
+              <button
                 class="inline-flex min-h-9 items-center whitespace-nowrap rounded-control px-3 text-xs font-semibold text-primary transition hover:bg-primary/5"
+                type="button"
+                @click="emit('select', patient)"
+              >Edit data klinis</button>
+              <RouterLink
+                class="ml-1 inline-flex min-h-9 items-center whitespace-nowrap rounded-control px-3 text-xs font-semibold text-primary transition hover:bg-primary/5"
                 :to="{ name: 'monitoring-patient-detail', params: { patientId: patient.id } }"
-              >Lihat detail →</RouterLink>
+              >Detail →</RouterLink>
             </td>
           </tr>
         </tbody>
