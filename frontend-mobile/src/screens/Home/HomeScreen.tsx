@@ -10,6 +10,7 @@ import {
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authStore } from '@/services/AuthServices/authStore';
+import { TherapyProgressCard } from './components/TherapyProgressCard';
 
 export default function HomeScreen() {
   return (
@@ -78,136 +79,15 @@ export default function HomeScreen() {
         />
 
         {/* ── Hero Card: Terapi Hari Ini ── */}
-        <View
-          style={{
-            marginTop: spacing.xl,
-            backgroundColor: colors.surface,
-            borderRadius: radius.lg,
-            padding: spacing.md,
-            shadowColor: colors.primaryDark,
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 8,
-            elevation: 2,
-          }}
-        >
-          <Text style={{ ...typography.caption, color: colors.textSecondary }}>
-            Terapi hari ini
-          </Text>
-
-          {/* Judul + Jam */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'baseline',
-              justifyContent: 'space-between',
-              marginTop: spacing.xs,
-              gap: spacing.sm,
-            }}
-          >
-            <Text
-              style={{
-                ...typography.h1,
-                color: colors.textPrimary,
-                flexShrink: 1,
-              }}
-            >
-              Latihan Lutut
-            </Text>
-            <Text style={{ ...typography.h1, color: colors.primary }}>
-              08.00
-            </Text>
-          </View>
-
-          {/* Progress bar */}
-          <View
-            style={{
-              height: 6,
-              borderRadius: radius.full,
-              backgroundColor: colors.bgBase,
-              marginTop: spacing.md,
-              overflow: 'hidden',
-            }}
-          >
-            <View
-              style={{
-                width: '7%',
-                height: '100%',
-                borderRadius: radius.full,
-                backgroundColor: colors.accentTeal,
-              }}
-            />
-          </View>
+        <View style={{ marginTop: spacing.xl }}>
+          <TherapyProgressCard
+            title="Latihan Lutut"
+            currentDay={3}
+            totalDays={42}
+            frequency="3× minggu"
+          />
         </View>
 
-        {/* ── Info Row: 2 kolom dari program dokter ── */}
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: spacing.cardGap,
-            marginTop: spacing.md,
-          }}
-        >
-          {/* Hari ke-N */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: colors.surface,
-              borderRadius: radius.lg,
-              padding: spacing.md,
-              shadowColor: colors.primaryDark,
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-              elevation: 2,
-            }}
-          >
-            <Text
-              style={{ ...typography.caption, color: colors.textSecondary }}
-            >
-              Hari ke-
-            </Text>
-            <Text
-              style={{
-                ...typography.h1,
-                color: colors.textPrimary,
-                marginTop: spacing.xs,
-              }}
-            >
-              3/42
-            </Text>
-          </View>
-
-          {/* Frekuensi */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: colors.surface,
-              borderRadius: radius.lg,
-              padding: spacing.md,
-              shadowColor: colors.primaryDark,
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-              elevation: 2,
-            }}
-          >
-            <Text
-              style={{ ...typography.caption, color: colors.textSecondary }}
-            >
-              Frekuensi
-            </Text>
-            <Text
-              style={{
-                ...typography.h1,
-                color: colors.textPrimary,
-                marginTop: spacing.xs,
-              }}
-            >
-              3× minggu
-            </Text>
-          </View>
-        </View>
 
         {/* ── Section: Aksi Cepat ── */}
         <Text
