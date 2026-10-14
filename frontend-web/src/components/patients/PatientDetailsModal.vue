@@ -13,7 +13,6 @@ const patientForm = reactive({
   riwayatPenyakit: '',
   alergi: '',
   lokasiKeluhan: '',
-  sisiTubuh: '',
   tanggalMulaiKeluhan: '',
   skalaNyeri: '',
   catatanAwal: '',
@@ -31,7 +30,6 @@ watch(
       riwayatPenyakit: patient.riwayatPenyakit || '',
       alergi: patient.alergi || '',
       lokasiKeluhan: patient.lokasiKeluhan || '',
-      sisiTubuh: patient.sisiTubuh || '',
       tanggalMulaiKeluhan: patient.tanggalMulaiKeluhan
         ? new Date(patient.tanggalMulaiKeluhan).toISOString().slice(0, 10)
         : '',
@@ -51,9 +49,6 @@ function submit() {
   )
   if (patientData.skalaNyeri !== null) {
     patientData.skalaNyeri = Number(patientData.skalaNyeri)
-  }
-  if (patientData.tanggalMulaiKeluhan) {
-    patientData.tanggalMulaiKeluhan = new Date(`${patientData.tanggalMulaiKeluhan}T00:00:00`).toISOString()
   }
   emit('save', patientData)
 }
@@ -113,10 +108,6 @@ function submit() {
               <div>
                 <label :class="fieldLabelClass" for="patient-complaint-location">Lokasi keluhan</label>
                 <input id="patient-complaint-location" v-model="patientForm.lokasiKeluhan" :class="fieldInputClass" type="text" placeholder="Contoh: lutut" :disabled="saving">
-              </div>
-              <div>
-                <label :class="fieldLabelClass" for="patient-body-side">Sisi tubuh</label>
-                <input id="patient-body-side" v-model="patientForm.sisiTubuh" :class="fieldInputClass" type="text" placeholder="Kiri, kanan, atau keduanya" :disabled="saving">
               </div>
               <div>
                 <label :class="fieldLabelClass" for="patient-onset-date">Mulai dirasakan</label>

@@ -38,17 +38,20 @@ function formatGender(value) {
           </tr>
         </thead>
         <tbody class="divide-y divide-line/70">
-          <tr v-for="patient in patients" :key="patient.id" class="align-top text-sm text-ink hover:bg-base/50">
+          <tr
+            v-for="patient in patients"
+            :key="patient.id"
+            class="cursor-pointer align-top text-sm text-ink hover:bg-base/50 focus-visible:bg-base/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40"
+            tabindex="0"
+            :aria-label="`Buka detail pasien ${patient.namaLengkap || ''}`"
+            @click="emit('select', patient)"
+            @keydown.enter.prevent="emit('select', patient)"
+            @keydown.space.prevent="emit('select', patient)"
+          >
             <td class="whitespace-nowrap px-3 py-5 font-medium">
-              <button
-                class="text-left text-primary-dark hover:text-primary hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                type="button"
-                :aria-label="`Lihat dan lengkapi data ${patient.namaLengkap || 'pasien'}`"
-                @click="emit('select', patient)"
-              >
+              <span class="text-primary-dark">
                 {{ patient.namaLengkap || 'Tidak tersedia' }}
-              </button>
-              <span class="mt-1 block text-xs font-normal text-muted">Lihat / lengkapi data</span>
+              </span>
             </td>
             <td class="px-3 py-5">{{ patient.user?.email || 'Tidak tersedia' }}</td>
             <td class="max-w-60 px-3 py-5">

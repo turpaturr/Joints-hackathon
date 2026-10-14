@@ -5,7 +5,7 @@ export async function getNakesPatients(token) {
 }
 
 export async function updatePatientClinicalData(patientId, patientData, token) {
-  return apiRequest(`/api/therapy/patients/${encodeURIComponent(patientId)}`, {
+  return apiRequest(`/api/connections/patients/${encodeURIComponent(patientId)}/clinical`, {
     method: 'PATCH',
     body: patientData,
     token,
