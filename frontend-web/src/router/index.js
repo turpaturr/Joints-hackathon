@@ -40,6 +40,12 @@ const routes = [
                 meta: { title: 'Pasien' },
             },
             {
+                path: 'patients/:patientId',
+                name: 'monitoring-patient-detail',
+                component: () => import('../views/Patients/Detail.vue'),
+                meta: { title: 'Detail pasien' },
+            },
+            {
                 path: 'therapy',
                 name: 'monitoring-therapy',
                 redirect: { name: 'monitoring-prescriptions' },
