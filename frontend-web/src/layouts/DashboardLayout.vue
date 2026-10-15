@@ -17,6 +17,7 @@ let clockInterval
 const navItems = [
   { label: 'Dashboard', name: 'monitoring-overview', icon: 'dashboard' },
   { label: 'Pasien', name: 'monitoring-patients', icon: 'patients' },
+  { label: 'Jadwal obat', name: 'monitoring-medications', icon: 'medications' },
   { label: 'Gerakan terapi', name: 'monitoring-movements', icon: 'therapy' },
   { label: 'Tugaskan terapi', name: 'monitoring-prescriptions', icon: 'therapy' },
   { label: 'Riwayat terapi', name: 'monitoring-reports', icon: 'history' },
@@ -148,6 +149,10 @@ onUnmounted(() => {
             <template v-else-if="item.icon === 'history'">
               <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
               <path d="M3 3v5h5m4-1v5l3 2" />
+            </template>
+            <template v-else-if="item.icon === 'medications'">
+              <path d="m10.5 3.5 10 10a4.24 4.24 0 0 1-6 6l-10-10a4.24 4.24 0 0 1 6-6Z" />
+              <path d="m8 14 6-6" />
             </template>
             <template v-else>
               <circle cx="12" cy="8" r="4" />

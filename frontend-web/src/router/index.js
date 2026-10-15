@@ -46,6 +46,12 @@ const routes = [
                 meta: { title: 'Detail pasien' },
             },
             {
+                path: 'medications',
+                name: 'monitoring-medications',
+                component: () => import('../views/Medication/Index.vue'),
+                meta: { title: 'Jadwal obat' },
+            },
+            {
                 path: 'therapy',
                 name: 'monitoring-therapy',
                 redirect: { name: 'monitoring-prescriptions' },
