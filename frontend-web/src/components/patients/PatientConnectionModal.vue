@@ -16,7 +16,7 @@ function updateCode(event) {
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
     role="presentation"
-    @click.self="emit('close')"
+    @click.self="!connecting && emit('close')"
   >
     <section
       aria-labelledby="add-patient-title"
@@ -28,7 +28,7 @@ function updateCode(event) {
         <div class="min-w-0">
           <p class="mb-1 text-xs font-medium text-primary">DATA PASIEN</p>
           <h2 id="add-patient-title" class="text-lg font-semibold text-primary-dark">Tambah pasien</h2>
-          <p class="mt-1 text-sm leading-5 text-muted">Masukkan kode yang ditampilkan di aplikasi pasien.</p>
+          <p class="mt-1 text-sm leading-5 text-muted">Masukkan kode 6 digit yang ditampilkan di aplikasi pasien. Kode berlaku selama 10 menit.</p>
         </div>
         <button
           aria-label="Tutup popup"

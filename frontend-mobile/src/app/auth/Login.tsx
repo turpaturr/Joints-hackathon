@@ -102,7 +102,7 @@ export default function LoginScreen() {
         <View style={{ marginTop: spacing.lg }}>
           <Input
             label="Email / Rekam Medis"
-            placeholder="Masukkan Email"
+            placeholder="nama@email.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
