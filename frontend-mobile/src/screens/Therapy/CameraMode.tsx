@@ -18,6 +18,10 @@ type SessionState = 'ready' | 'recording' | 'saving' | 'saveFailed' | 'done';
 
 const PROGRAM_NAME = 'Latihan Leher (Visual)';
 
+function now() {
+  return Date.now();
+}
+
 function formatDuration(ms: number) {
   const totalSec = Math.floor(ms / 1000);
   const m = Math.floor(totalSec / 60);
@@ -69,7 +73,7 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
     
     setElapsedMs(0);
     setSaveError('');
-    startTimeRef.current = Date.now();
+    startTimeRef.current = now();
     setSessionState('recording');
 
     try {
@@ -80,7 +84,7 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
       const data = await videoRecordPromise;
       if (data) {
         setVideoUri(data.uri);
-        uploadVideo(data.uri, Date.now() - startTimeRef.current);
+        void uploadVideo(data.uri, now() - startTimeRef.current);
       }
     } catch (e) {
       console.error('Gagal merekam:', e);
@@ -186,6 +190,7 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
                 facing="front" 
                 mode="video" 
               />
+                <FaceGuideOverlay />
               
               {sessionState === 'recording' && (
                 <View style={styles.recordingOverlay}>
@@ -211,11 +216,42 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
           {sessionState === 'ready' && <Button title="Mulai Rekam Sesi" onPress={handleStart} />}
           {sessionState === 'recording' && <Button title="Selesai & Kirim" variant="primary" onPress={handleStop} />}
           {sessionState === 'saving' && <Button title="Mengirim Video..." onPress={() => {}} loading />}
-          {sessionState === 'saveFailed' && <Button title="Coba Kirim Lagi" onPress={() => uploadVideo(videoUri!, elapsedMs)} />}
+          {sessionState === 'saveFailed' && videoUri && (
+            <Button
+              title="Coba Kirim Lagi"
+              onPress={() => void uploadVideo(videoUri, finalDuration)}
+            />
+          )}
           {sessionState === 'done' && <Button title="Selesai" onPress={() => onBack()} />}
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function FaceGuideOverlay() {
+  return (
+    <View style={styles.overlayContainer} pointerEvents="none">
+      {/* Area gelap di luar oval */}
+      <View style={styles.darkness} />
+
+      <View style={styles.centerRow}>
+        <View style={styles.darkness} />
+
+        {/* Bingkai Oval untuk Wajah */}
+        <View style={styles.faceOval}>
+          {/* Sudut-sudut panduan agar terlihat seperti scanner */}
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
+        </View>
+
+        <View style={styles.darkness} />
+      </View>
+
+      <View style={styles.darkness} />
+    </View>
   );
 }
 
@@ -310,6 +346,58 @@ const styles = StyleSheet.create({
     color: '#00FF00',
     ...typography.h2,
     textAlign: 'center',
+  },
+  overlayContainer: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'space-between',
+  },
+  darkness: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  centerRow: {
+    height: 240,
+    flexDirection: 'row',
+  },
+  faceOval: {
+    width: 180,
+    borderWidth: 2,
+    borderColor: '#00FF00',
+    borderRadius: 90,
+  },
+  corner: {
+    position: 'absolute',
+    width: 24,
+    height: 24,
+    borderColor: '#00FF00',
+  },
+  topLeft: {
+    top: -2,
+    left: -2,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderTopLeftRadius: 12,
+  },
+  topRight: {
+    top: -2,
+    right: -2,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+    borderTopRightRadius: 12,
+  },
+  bottomLeft: {
+    bottom: -2,
+    left: -2,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+    borderBottomLeftRadius: 12,
+  },
+  bottomRight: {
+    bottom: -2,
+    right: -2,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderBottomRightRadius: 12,
   },
   
   card: {
