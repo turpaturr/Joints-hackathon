@@ -11,23 +11,21 @@ export function LogoutButton({ onPress }: LogoutButtonProps) {
     <TouchableOpacity
       accessibilityRole="button"
       onPress={onPress}
+      activeOpacity={0.7}
       style={{
         minHeight: spacing.xxl,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: spacing.lg,
-        borderRadius: radius.md,
-        borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.surface,
+        marginTop: spacing.sm,
+        borderRadius: radius.full,
       }}
     >
-      <LogOut size={24} color={colors.primary} />
+      <LogOut size={18} color={colors.danger} />
       <Text
         style={{
           ...typography.button,
-          color: colors.primary,
+          color: colors.danger,
           marginLeft: spacing.sm,
         }}
       >

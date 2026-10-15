@@ -1,12 +1,13 @@
 import type { PatientConnectionStatus } from '@/services/connection.service';
 import { colors, radius, spacing, typography } from '@/theme';
-import { RefreshCw, Stethoscope } from 'lucide-react-native';
+import { RefreshCw } from 'lucide-react-native';
 import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { cardStyle } from './CardStyle';
 
 interface HealthcareConnectionCardProps {
   status: PatientConnectionStatus | null;
@@ -45,16 +46,7 @@ export function HealthcareConnectionCard({
   const nakesDetails = status ? getNakesDetails(status) : [];
 
   return (
-    <View
-      style={{
-        marginTop: spacing.lg,
-        padding: spacing.md,
-        borderRadius: radius.lg,
-        backgroundColor: colors.surface,
-        borderWidth: 1,
-        borderColor: colors.border,
-      }}
-    >
+    <View style={{ ...cardStyle, padding: spacing.md }}>
       <View
         style={{
           flexDirection: 'row',
@@ -84,19 +76,20 @@ export function HealthcareConnectionCard({
           accessibilityRole="button"
           disabled={loading}
           onPress={onRefresh}
+          activeOpacity={0.7}
           style={{
-            width: spacing.xxl,
-            height: spacing.xxl,
+            width: 40,
+            height: 40,
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: radius.md,
+            borderRadius: radius.full,
             backgroundColor: colors.bgBase,
           }}
         >
           {loading ? (
             <ActivityIndicator color={colors.primary} />
           ) : (
-            <RefreshCw size={24} color={colors.primary} />
+            <RefreshCw size={18} color={colors.primary} />
           )}
         </TouchableOpacity>
       </View>
@@ -126,6 +119,8 @@ function ConnectedNakesDetails({
   status: PatientConnectionStatus;
   details: [string, string][];
 }) {
+  const nakesName = status.nakes?.namaLengkap || 'Nakes terhubung';
+
   return (
     <View
       style={{
@@ -136,26 +131,56 @@ function ConnectedNakesDetails({
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Stethoscope size={24} color={colors.primary} />
-        <Text
+        <View
           style={{
-            ...typography.bodyMedium,
-            color: colors.textPrimary,
-            marginLeft: spacing.sm,
-            flex: 1,
+            width: 44,
+            height: 44,
+            borderRadius: radius.full,
+            backgroundColor: colors.accentLime,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: spacing.md,
           }}
         >
-          {status.nakes?.namaLengkap || 'Nakes terhubung'}
-        </Text>
+          <Text style={{ ...typography.h2, color: colors.primaryDark }}>
+            {nakesName.slice(0, 1).toUpperCase()}
+          </Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ ...typography.bodyMedium, color: colors.textPrimary }}>
+            {nakesName}
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: spacing.xs,
+            }}
+          >
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: radius.full,
+                backgroundColor: colors.primary,
+                marginRight: spacing.xs + 2,
+              }}
+            />
+            <Text style={{ ...typography.caption, color: colors.textSecondary }}>
+              Terhubung
+            </Text>
+          </View>
+        </View>
       </View>
+
       {details.length ? (
         <View
           style={{
-            marginTop: spacing.sm,
-            paddingTop: spacing.sm,
+            marginTop: spacing.md,
+            paddingTop: spacing.md,
             borderTopWidth: 1,
             borderTopColor: colors.border,
-            gap: spacing.sm,
+            gap: spacing.sm + 2,
           }}
         >
           {details.map(([label, value]) => (
@@ -201,46 +226,76 @@ function ConnectionCode({
     <View
       style={{
         marginTop: spacing.md,
-        padding: spacing.md,
+        paddingVertical: spacing.lg,
+        paddingHorizontal: spacing.md,
         alignItems: 'center',
         borderRadius: radius.md,
         backgroundColor: colors.bgBase,
       }}
     >
-      <Text style={{ ...typography.caption, color: colors.textSecondary }}>
+      <Text
+        style={{
+          ...typography.caption,
+          color: colors.textSecondary,
+          textAlign: 'center',
+        }}
+      >
         Tunjukkan kode ini kepada Nakes untuk menghubungkan akun.
       </Text>
       {code ? (
         <>
-          <Text
+          <View
+            accessible
             accessibilityLabel={`Kode koneksi ${code}`}
-            selectable
             style={{
-              ...typography.h1,
-              color: colors.primaryDark,
-              letterSpacing: spacing.xs,
-              marginTop: spacing.sm,
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: spacing.sm,
+              marginTop: spacing.md,
             }}
           >
-            {code}
-          </Text>
+            {code.split('').map((char, i) => (
+              <View
+                key={`${char}-${i}`}
+                style={{
+                  width: 40,
+                  height: 52,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: radius.md,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+              >
+                <Text style={{ ...typography.h1, color: colors.primaryDark }}>
+                  {char}
+                </Text>
+              </View>
+            ))}
+          </View>
           {secondsRemaining > 0 ? (
-            <Text
+            <View
               style={{
-                ...typography.caption,
-                color: colors.textSecondary,
-                marginTop: spacing.xs,
+                marginTop: spacing.md,
+                paddingHorizontal: spacing.sm + 2,
+                paddingVertical: spacing.xs,
+                borderRadius: radius.full,
+                backgroundColor: colors.surface,
               }}
             >
-              Kode berlaku {formatRemaining(secondsRemaining)} lagi
-            </Text>
+              <Text style={{ ...typography.caption, color: colors.textSecondary }}>
+                Berlaku {formatRemaining(secondsRemaining)} lagi
+              </Text>
+            </View>
           ) : (
             <Text
               accessibilityRole="alert"
               style={{
                 ...typography.caption,
                 color: colors.danger,
-                marginTop: spacing.xs,
+                marginTop: spacing.md,
                 textAlign: 'center',
               }}
             >

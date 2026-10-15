@@ -3,12 +3,12 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { colors, radius, spacing, typography } from '@/theme';
 
 interface FeatureCardProps {
-  icon: LucideIcon;
+  icon: any;
   title: string;
   description: string;
   onPress: () => void;
-  /** Tandai sebagai aksi paling relevan hari ini (dot accentTeal). */
   highlight?: boolean;
+  accentColor?: string;
 }
 
 export function FeatureCard({
@@ -17,7 +17,10 @@ export function FeatureCard({
   description,
   onPress,
   highlight = false,
+  accentColor = colors.primary,
 }: FeatureCardProps) {
+  const activeAccent = highlight ? colors.primary : accentColor;
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -34,23 +37,24 @@ export function FeatureCard({
         shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 2,
+        overflow: 'hidden',
+        borderLeftWidth: 4,
+        borderLeftColor: activeAccent,
       }}
     >
-      {/* Ikon dalam soft container */}
       <View
         style={{
           width: 56,
           height: 56,
           borderRadius: radius.md,
-          backgroundColor: colors.bgBase,
+          backgroundColor: `${activeAccent}15`,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Icon size={32} color={colors.primary} strokeWidth={2} />
+        <Icon size={32} color={activeAccent} strokeWidth={2} />
       </View>
 
-      {/* Teks */}
       <View style={{ flex: 1 }}>
         <View
           style={{
@@ -63,16 +67,16 @@ export function FeatureCard({
             {title}
           </Text>
 
-          {highlight ? (
+          {highlight && (
             <View
               style={{
                 width: 8,
                 height: 8,
                 borderRadius: radius.full,
-                backgroundColor: colors.accentTeal,
+                backgroundColor: colors.accentTeal, // Set explicitly to accentTeal
               }}
             />
-          ) : null}
+          )}
         </View>
 
         <Text
@@ -86,8 +90,8 @@ export function FeatureCard({
         </Text>
       </View>
 
-      {/* Chevron */}
-      <ChevronRight size={20} color={colors.primary} strokeWidth={2.2} />
+      {/* Chevron matching accent */}
+      <ChevronRight size={20} color={activeAccent} strokeWidth={2.2} />
     </TouchableOpacity>
   );
 }

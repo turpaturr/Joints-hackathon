@@ -2,7 +2,7 @@ import { authStore } from '@/services/AuthServices/authStore';
 import { colors, spacing, typography } from '@/theme';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HealthcareConnectionCard } from './components/HealthcareConnectionCard';
 import { LogoutButton } from './components/LogoutButton';
@@ -36,8 +36,9 @@ export default function ProfileScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing.screenPadding,
-          paddingTop: spacing.xl,
+          paddingTop: spacing.md,
           paddingBottom: spacing.xl,
+          gap: spacing.md,
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -46,11 +47,7 @@ export default function ProfileScreen() {
         {error ? (
           <Text
             accessibilityRole="alert"
-            style={{
-              ...typography.caption,
-              color: colors.danger,
-              marginTop: spacing.md,
-            }}
+            style={{ ...typography.caption, color: colors.danger }}
           >
             {error}
           </Text>
@@ -72,17 +69,16 @@ export default function ProfileScreen() {
             onRefresh={refreshStatus}
           />
         ) : (
-          <View style={{ marginTop: spacing.lg }}>
-            <Text
-              style={{
-                ...typography.body,
-                color: colors.textSecondary,
-                textAlign: 'center',
-              }}
-            >
-              Profil dan koneksi Nakes hanya tersedia untuk akun pasien.
-            </Text>
-          </View>
+          <Text
+            style={{
+              ...typography.body,
+              color: colors.textSecondary,
+              textAlign: 'center',
+              paddingVertical: spacing.lg,
+            }}
+          >
+            Profil dan koneksi Nakes hanya tersedia untuk akun pasien.
+          </Text>
         )}
 
         <LogoutButton onPress={logout} />
