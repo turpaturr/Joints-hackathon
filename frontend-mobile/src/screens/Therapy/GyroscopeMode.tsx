@@ -82,6 +82,7 @@ export function GyroscopeMode({ onBack }: { onBack: () => void }) {
     const metrics = estimateTherapyMetrics(samples);
     const payload: TherapySessionPayload = {
       programName: PROGRAM_NAME,
+      therapyType: 'GYROSCOPE',
       estimatedAngle: metrics.estimatedAngle,
       validRepetitions: metrics.validRepetitions,
       durationMs: duration,

@@ -1,5 +1,10 @@
 import { Button } from '@/components/Button';
 import { authStore } from '@/services/AuthServices/authStore';
+import { ApiError } from '@/services/api';
+import {
+  createTherapySession,
+  type TherapySessionPayload,
+} from '@/services/therapy.service';
 import { colors, radius, spacing, typography } from '@/theme';
 import { ArrowLeft, CheckCircle, Video as VideoIcon } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -35,6 +40,7 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
   const [finalDuration, setFinalDuration] = useState(0);
   const [saveError, setSaveError] = useState('');
   const [videoUri, setVideoUri] = useState<string | null>(null);
+  const pendingSessionRef = useRef<TherapySessionPayload | null>(null);
   
   const [instruction, setInstruction] = useState('Posisikan wajah Anda di tengah');
 
@@ -84,7 +90,7 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
       const data = await videoRecordPromise;
       if (data) {
         setVideoUri(data.uri);
-        void uploadVideo(data.uri, now() - startTimeRef.current);
+        void saveSession(now() - startTimeRef.current);
       }
     } catch (e) {
       console.error('Gagal merekam:', e);
@@ -100,7 +106,7 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const uploadVideo = async (uri: string, duration: number) => {
+  const saveSession = async (duration: number) => {
     setFinalDuration(duration);
     setSessionState('saving');
     
@@ -108,20 +114,48 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
       const token = authStore.token;
       if (!token) throw new Error('Sesi login berakhir.');
 
-      const formData = new FormData();
-      formData.append('programName', PROGRAM_NAME);
-      formData.append('durationMs', duration.toString());
-      
-      formData.append('videoFile', {
-        uri: uri,
-        name: `therapy_${Date.now()}.mp4`,
-        type: 'video/mp4',
-      } as any);
-
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const payload: TherapySessionPayload = {
+        programName: PROGRAM_NAME,
+        therapyType: 'CAMERA',
+        estimatedAngle: 0,
+        validRepetitions: 0,
+        durationMs: duration,
+        sampleCount: 0,
+        performedAt: new Date(startTimeRef.current).toISOString(),
+      };
+      pendingSessionRef.current = payload;
+      await createTherapySession(payload, token);
       setSessionState('done');
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : 'Video gagal dikirim.');
+      setSaveError(
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : 'Sesi gagal dikirim. Periksa koneksi lalu coba lagi.',
+      );
+      setSessionState('saveFailed');
+    }
+  };
+
+  const handleRetry = async () => {
+    const payload = pendingSessionRef.current;
+    if (!payload) {
+      setSaveError('Data sesi tidak tersedia. Silakan mulai sesi baru.');
+      return;
+    }
+
+    setSessionState('saving');
+    setSaveError('');
+    try {
+      const token = authStore.token;
+      if (!token) throw new Error('Sesi login berakhir. Silakan masuk kembali.');
+      await createTherapySession(payload, token);
+      setSessionState('done');
+    } catch (error) {
+      setSaveError(
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : 'Sesi gagal dikirim. Periksa koneksi lalu coba lagi.',
+      );
       setSessionState('saveFailed');
     }
   };
@@ -218,8 +252,8 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
           {sessionState === 'saving' && <Button title="Mengirim Video..." onPress={() => {}} loading />}
           {sessionState === 'saveFailed' && videoUri && (
             <Button
-              title="Coba Kirim Lagi"
-              onPress={() => void uploadVideo(videoUri, finalDuration)}
+              title="Coba Simpan Lagi"
+              onPress={() => void handleRetry()}
             />
           )}
           {sessionState === 'done' && <Button title="Selesai" onPress={() => onBack()} />}
@@ -272,9 +306,9 @@ function SavingState() {
   return (
     <View style={{ alignItems: 'center', marginTop: 40 }}>
       <VideoIcon size={48} color={colors.primary} />
-      <Text style={{ ...typography.h2, color: colors.textPrimary, marginTop: 16 }}>Mengunggah Video</Text>
+      <Text style={{ ...typography.h2, color: colors.textPrimary, marginTop: 16 }}>Menyimpan Sesi</Text>
       <Text style={{ ...typography.body, color: colors.textSecondary, textAlign: 'center', marginTop: 8 }}>
-        Mohon tunggu, video sedang dikirim ke dokter Anda.
+        Mohon tunggu, data sesi kamera sedang dikirim ke dokter Anda.
       </Text>
     </View>
   );
@@ -283,7 +317,7 @@ function SavingState() {
 function SaveFailedState({ message }: { message: string }) {
   return (
     <View style={{ alignItems: 'center', marginTop: 40 }}>
-      <Text style={{ ...typography.h2, color: colors.danger }}>Gagal Mengunggah</Text>
+      <Text style={{ ...typography.h2, color: colors.danger }}>Gagal Menyimpan</Text>
       <Text style={{ ...typography.body, color: colors.textSecondary, textAlign: 'center', marginTop: 8 }}>{message}</Text>
     </View>
   );
