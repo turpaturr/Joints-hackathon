@@ -12,7 +12,9 @@ const token = getSession()?.token
 const busy = ref(false)
 const error = ref('')
 const notice = ref('')
-const createdSchedule = ref(null)
+const showScheduleModal = ref(false)
+const medicationSchedules = ref([])
+const scheduleSequence = ref(0)
 const now = new Date()
 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 const form = reactive({
@@ -50,6 +52,27 @@ function removeTime(index) {
   form.timeToTake.splice(index, 1)
 }
 
+function formatDate(date) {
+  if (!date) return '—'
+  return new Date(`${date.slice(0, 10)}T12:00:00`).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function openScheduleModal() {
+  error.value = ''
+  notice.value = ''
+  showScheduleModal.value = true
+}
+
+function closeScheduleModal() {
+  if (busy.value) return
+  showScheduleModal.value = false
+  error.value = ''
+}
+
 async function submitSchedule() {
   error.value = ''
   notice.value = ''
@@ -74,7 +97,18 @@ async function submitSchedule() {
       endDate: form.endDate,
     }, token)
 
-    createdSchedule.value = response?.data ?? response
+    const schedule = response?.data ?? response ?? {}
+    medicationSchedules.value.unshift({
+      id: schedule.id ?? `local-${++scheduleSequence.value}`,
+      patientName: monitoringData.patients.find((patient) => patient.id === form.patientId)?.namaLengkap
+        || 'Pasien',
+      medicationName: schedule.medicationName ?? form.medicationName.trim(),
+      dosage: schedule.dosage ?? form.dosage.trim(),
+      frequency: schedule.frequency ?? form.frequency.trim(),
+      timeToTake: schedule.timeToTake ?? [...form.timeToTake],
+      startDate: schedule.startDate ?? form.startDate,
+      endDate: schedule.endDate ?? form.endDate,
+    })
     notice.value = response?.message || 'Jadwal obat berhasil dibuat.'
     form.medicationName = ''
     form.dosage = ''
@@ -82,6 +116,7 @@ async function submitSchedule() {
     form.timeToTake = ['08:00']
     form.startDate = today
     form.endDate = today
+    showScheduleModal.value = false
   } catch (requestError) {
     error.value = requestError?.message || 'Jadwal obat gagal dibuat. Coba lagi.'
   } finally {
@@ -96,44 +131,82 @@ async function submitSchedule() {
       eyebrow="Perawatan pasien"
       title="Jadwal obat"
       description="Buat jadwal konsumsi obat untuk pasien yang terhubung dengan akun Nakes Anda."
-    />
+    >
+      <template #actions>
+        <button
+          class="min-h-11 w-full rounded-control bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark sm:w-auto"
+          type="button"
+          @click="openScheduleModal"
+        >
+          Buatkan resep
+        </button>
+      </template>
+    </PageHeader>
 
     <p v-if="notice" class="rounded-panel border border-success/25 bg-success/5 p-3 text-sm text-success" role="status">
       {{ notice }}
     </p>
-    <p v-if="error" class="rounded-panel border border-danger/25 bg-danger/5 p-3 text-sm text-danger" role="alert">
-      {{ error }}
-    </p>
 
-    <SurfaceCard>
-      <div v-if="monitoringData.loading && !monitoringData.patients.length" class="flex min-h-40 items-center justify-center gap-3 text-sm text-muted" role="status">
-        <span class="size-5 animate-spin rounded-full border-2 border-line border-t-primary motion-reduce:animate-none" aria-hidden="true" />
-        Memuat daftar pasien…
-      </div>
-      <div v-else-if="monitoringData.error && !monitoringData.patients.length" class="grid min-h-40 place-content-center justify-items-center gap-3 text-center">
-        <p class="max-w-lg text-sm text-danger" role="alert">{{ monitoringData.error }}</p>
-        <button
-          class="min-h-10 rounded-control border border-line px-4 text-sm font-semibold text-primary hover:bg-base"
-          type="button"
-          @click="refreshMonitoringData(token)"
-        >
-          Coba lagi
-        </button>
-      </div>
-      <EmptyState
-        v-else-if="!monitoringData.patients.length"
-        title="Belum ada pasien terhubung"
-        description="Hubungkan pasien terlebih dahulu sebelum membuat jadwal obat."
+    <div
+      v-if="showScheduleModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      role="presentation"
+      @click.self="closeScheduleModal"
+    >
+      <section
+        class="max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-card border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="medication-modal-title"
       >
-        <RouterLink
-          class="mt-3 inline-flex min-h-10 items-center rounded-control bg-primary px-4 text-sm font-semibold text-white no-underline hover:bg-primary-dark"
-          :to="{ name: 'monitoring-patients' }"
-        >
-          Buka daftar pasien
-        </RouterLink>
-      </EmptyState>
+        <header class="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 id="medication-modal-title" class="text-lg font-semibold text-primary-dark">Buatkan resep obat</h2>
+            <p class="mt-1 text-sm text-muted">Isi informasi obat dan jadwal konsumsinya.</p>
+          </div>
+          <button
+            class="grid size-9 shrink-0 place-items-center rounded-control text-xl text-muted hover:bg-base hover:text-ink disabled:opacity-50"
+            type="button"
+            aria-label="Tutup popup"
+            :disabled="busy"
+            @click="closeScheduleModal"
+          >
+            ×
+          </button>
+        </header>
+        <p v-if="error" class="mb-4 rounded-panel border border-danger/25 bg-danger/5 p-3 text-sm text-danger" role="alert">
+          {{ error }}
+        </p>
 
-      <form v-else class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]" @submit.prevent="submitSchedule">
+        <div v-if="monitoringData.loading && !monitoringData.patients.length" class="flex min-h-40 items-center justify-center gap-3 text-sm text-muted" role="status">
+          <span class="size-5 animate-spin rounded-full border-2 border-line border-t-primary motion-reduce:animate-none" aria-hidden="true" />
+          Memuat daftar pasien…
+        </div>
+        <div v-else-if="monitoringData.error && !monitoringData.patients.length" class="grid min-h-40 place-content-center justify-items-center gap-3 text-center">
+          <p class="max-w-lg text-sm text-danger" role="alert">{{ monitoringData.error }}</p>
+          <button
+            class="min-h-10 rounded-control border border-line px-4 text-sm font-semibold text-primary hover:bg-base"
+            type="button"
+            @click="refreshMonitoringData(token)"
+          >
+            Coba lagi
+          </button>
+        </div>
+        <EmptyState
+          v-else-if="!monitoringData.patients.length"
+          title="Belum ada pasien terhubung"
+          description="Hubungkan pasien terlebih dahulu sebelum membuat jadwal obat."
+        >
+          <RouterLink
+            class="mt-3 inline-flex min-h-10 items-center rounded-control bg-primary px-4 text-sm font-semibold text-white no-underline hover:bg-primary-dark"
+            :to="{ name: 'monitoring-patients' }"
+            @click="closeScheduleModal"
+          >
+            Buka daftar pasien
+          </RouterLink>
+        </EmptyState>
+
+        <form v-else class="grid gap-5 lg:grid-cols-2" @submit.prevent="submitSchedule">
         <div class="space-y-4">
           <label class="grid gap-2 text-sm font-medium text-primary-dark">
             Pasien
@@ -256,31 +329,51 @@ async function submitSchedule() {
             {{ busy ? 'Menyimpan…' : 'Simpan jadwal obat' }}
           </button>
         </div>
-      </form>
-    </SurfaceCard>
+        </form>
+      </section>
+    </div>
 
-    <SurfaceCard v-if="createdSchedule">
-      <h2 class="text-lg font-semibold text-primary-dark">Jadwal berhasil disimpan</h2>
-      <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+    <SurfaceCard>
+      <header class="mb-3 flex items-center justify-between gap-3">
         <div>
-          <dt class="text-muted">Obat</dt>
-          <dd class="font-medium text-ink">{{ createdSchedule.medicationName }}</dd>
+          <p class="mb-1 text-xs font-medium text-primary">Data perawatan</p>
+          <h2 class="text-lg font-semibold text-primary-dark">Jadwal obat yang dibuat</h2>
         </div>
-        <div>
-          <dt class="text-muted">Dosis</dt>
-          <dd class="font-medium text-ink">{{ createdSchedule.dosage }}</dd>
-        </div>
-        <div>
-          <dt class="text-muted">Frekuensi</dt>
-          <dd class="font-medium text-ink">{{ createdSchedule.frequency }}</dd>
-        </div>
-        <div>
-          <dt class="text-muted">Waktu</dt>
-          <dd class="font-medium text-ink">{{ createdSchedule.timeToTake?.join(', ') }}</dd>
-        </div>
-      </dl>
+        <span class="text-sm text-muted">{{ medicationSchedules.length }} jadwal</span>
+      </header>
+      <EmptyState
+        v-if="!medicationSchedules.length"
+        title="Belum ada jadwal obat"
+        description="Jadwal yang berhasil disimpan akan muncul di tabel ini."
+      />
+      <div v-else class="overflow-x-auto">
+        <table class="w-full min-w-[900px] border-collapse text-left">
+          <thead>
+            <tr class="border-b border-line text-xs font-medium text-muted">
+              <th class="px-3 py-3">Pasien</th>
+              <th class="px-3 py-3">Obat</th>
+              <th class="px-3 py-3">Dosis</th>
+              <th class="px-3 py-3">Frekuensi</th>
+              <th class="px-3 py-3">Waktu konsumsi</th>
+              <th class="px-3 py-3">Periode</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-line/70">
+            <tr v-for="schedule in medicationSchedules" :key="schedule.id" class="text-sm text-ink hover:bg-base/50">
+              <td class="whitespace-nowrap px-3 py-3 font-medium text-primary-dark">{{ schedule.patientName }}</td>
+              <td class="px-3 py-3">{{ schedule.medicationName }}</td>
+              <td class="whitespace-nowrap px-3 py-3">{{ schedule.dosage }}</td>
+              <td class="whitespace-nowrap px-3 py-3">{{ schedule.frequency }}</td>
+              <td class="whitespace-nowrap px-3 py-3">{{ schedule.timeToTake.join(', ') }}</td>
+              <td class="whitespace-nowrap px-3 py-3">
+                {{ formatDate(schedule.startDate) }} – {{ formatDate(schedule.endDate) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <p class="mt-4 border-t border-line pt-3 text-xs leading-5 text-muted">
-        Jadwal tersimpan di backend. Endpoint Nakes saat ini belum menyediakan daftar, perubahan, atau penghapusan jadwal.
+        Tabel ini menampilkan jadwal yang berhasil dibuat selama halaman ini dibuka. Daftar jadwal historis belum tersedia dari endpoint Nakes.
       </p>
     </SurfaceCard>
   </div>

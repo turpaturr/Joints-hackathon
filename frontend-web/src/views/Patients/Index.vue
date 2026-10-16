@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
+import SurfaceCard from '../../components/ui/SurfaceCard.vue'
 import PatientConnectionModal from '../../components/patients/PatientConnectionModal.vue'
 import PatientDetailsModal from '../../components/patients/PatientDetailsModal.vue'
 import PatientTable from '../../components/patients/PatientTable.vue'
@@ -163,12 +164,20 @@ async function savePatientData(patientData) {
       :title="search ? 'Pasien tidak ditemukan' : 'Belum ada pasien'"
       :description="search ? 'Coba kata kunci nama atau email lainnya.' : 'Profil pasien akan muncul setelah ditautkan ke akun Nakes Anda.'"
     />
-    <PatientTable
-      v-else
-      :patients="filteredPatients"
-      @open-text="longTextModal = $event"
-      @select="openPatientModal"
-    />
+    <SurfaceCard v-else>
+      <header class="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p class="mb-1 text-xs font-medium text-primary">Tim perawatan</p>
+          <h2 class="text-lg font-semibold text-primary-dark">Daftar pasien</h2>
+        </div>
+        <span class="text-sm text-muted">{{ filteredPatients.length }} pasien</span>
+      </header>
+      <PatientTable
+        :patients="filteredPatients"
+        @open-text="longTextModal = $event"
+        @select="openPatientModal"
+      />
+    </SurfaceCard>
     <PatientTextModal :modal="longTextModal" @close="longTextModal = null" />
     <PatientDetailsModal
       v-if="selectedPatient"
