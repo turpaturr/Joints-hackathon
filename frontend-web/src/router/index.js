@@ -46,6 +46,12 @@ const routes = [
                 meta: { title: 'Detail pasien' },
             },
             {
+                path: 'consultations',
+                name: 'monitoring-consultations',
+                component: () => import('../views/Consultations/Index.vue'),
+                meta: { title: 'Konsultasi' },
+            },
+            {
                 path: 'medications',
                 name: 'monitoring-medications',
                 component: () => import('../views/Medication/Index.vue'),
