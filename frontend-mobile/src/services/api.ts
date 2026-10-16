@@ -4,11 +4,11 @@
  */
 
 import Constants from 'expo-constants';
+
 const host = Constants.expoConfig?.hostUri?.split(':')[0];
-// const BASE_URL = `http://${host}:3000`;
-// const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? (host ? `http://${host}:3000` : 'http://192.168.x.x:3000');
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.1.3:3000'; 
-// //kalau mau tes di expo go ganti ke ip masing masing komputer
+const BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ??
+  (host ? `http://${host}:3000` : 'http://192.168.1.3:3000');
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -44,13 +44,12 @@ export async function request<T>(
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const url = `${BASE_URL}${path}`;
   console.log(`[API] ${method} ${url}`);
 
-  // ── Network request ─────────────────────────────────────────────────────
   let res: Response;
   try {
     res = await fetch(url, {
@@ -59,20 +58,14 @@ export async function request<T>(
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (networkError) {
-    console.error(`[API] Network error:`, networkError);
-    throw new ApiError(
-      0,
-      'Tidak dapat terhubung ke server.',
-    );
+    console.error('[API] Network error:', networkError);
+    throw new ApiError(0, 'Tidak dapat terhubung ke server.');
   }
 
   console.log(`[API] ${method} ${url} → ${res.status}`);
 
-  // ── Parse response body ──────────────────────────────────────────────────
-  // The server might occasionally return HTML (e.g. proxy errors), so we
-  // read as text first and only then try JSON.parse.
   const text = await res.text();
-  let json: any;
+  let json: unknown;
   try {
     json = JSON.parse(text);
   } catch {
@@ -84,8 +77,15 @@ export async function request<T>(
   }
 
   if (!res.ok) {
-    console.warn(`[API] Error body:`, json);
-    throw new ApiError(res.status, json?.message ?? res.statusText, json);
+    console.warn('[API] Error body:', json);
+    const message =
+      typeof json === 'object' &&
+      json !== null &&
+      'message' in json &&
+      typeof json.message === 'string'
+        ? json.message
+        : res.statusText;
+    throw new ApiError(res.status, message, json);
   }
 
   return json as ApiResponse<T>;
