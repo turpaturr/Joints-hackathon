@@ -112,3 +112,25 @@ export async function getPatientPrescriptions(
   );
   return res.data;
 }
+
+/** GET /api/therapy-sessions/my — PATIENT views own sessions */
+export async function getMyTherapySessions(
+  token: string,
+): Promise<TherapySession[]> {
+  const res = await request<TherapySession[]>('/api/therapy-sessions/my', {
+    token,
+  });
+  return res.data;
+}
+
+/** GET /api/therapy-sessions/my-prescriptions — PATIENT views own prescriptions */
+export async function getMyPrescriptions(
+  token: string,
+): Promise<Prescription[]> {
+  const res = await request<Prescription[]>(
+    '/api/therapy-sessions/my-prescriptions',
+    { token },
+  );
+  return res.data;
+}
+

@@ -8,11 +8,12 @@ import {
 } from '@/services/consultation.service';
 import { colors, radius, spacing, typography } from '@/theme';
 import { router, useFocusEffect } from 'expo-router';
-import { MessageCircle, Plus, X } from 'lucide-react-native';
+import { ArrowLeft, MessageCircle, Plus, X } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -117,6 +118,14 @@ export default function ConsultationsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgBase }}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backBtn}
+        >
+          <ArrowLeft size={24} color={colors.textPrimary} />
+        </TouchableOpacity>
+      </View>
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing.screenPadding,
@@ -327,3 +336,8 @@ export default function ConsultationsScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
+  header: { paddingHorizontal: spacing.screenPadding, paddingTop: spacing.md },
+});

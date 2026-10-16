@@ -113,7 +113,7 @@ export default function HomeScreen() {
             icon={Pill}
             title="Jadwal Minum Obat"
             description="Lihat jadwal & catat minum obat"
-            onPress={() => router.push('/medication')}
+            onPress={() => router.push('/medication' as any)}
           />
           <FeatureCard
             icon={History}
