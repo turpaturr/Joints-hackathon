@@ -30,7 +30,16 @@ export async function apiRequest(path, options = {}) {
 
   if (!response.ok) {
     const message = payload?.message || payload?.error || 'Request failed';
-    throw new Error(message);
+    const validationDetails = payload?.error?.details;
+    const details = Array.isArray(validationDetails)
+      ? validationDetails
+        .map((issue) => {
+          const path = Array.isArray(issue?.path) ? issue.path.join('.') : ''
+          return [path, issue?.message].filter(Boolean).join(': ')
+        })
+        .filter(Boolean)
+      : [];
+    throw new Error(details.length ? `${message}: ${details.join('; ')}` : message);
   }
 
   if (!parseJson) {
