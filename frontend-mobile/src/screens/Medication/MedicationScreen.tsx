@@ -3,6 +3,7 @@ import {
   getPatientMedicationSchedules,
   MedicationSchedule,
 } from '@/services/medication.service';
+import { scheduleMedicationReminders } from '@/services/medication-notification.service';
 import { authStore } from '@/services/AuthServices/authStore';
 import { colors, radius, spacing, typography } from '@/theme';
 import { router } from 'expo-router';
@@ -146,6 +147,7 @@ export default function MedicationScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
+  const [reminderError, setReminderError] = useState('');
 
   const loadSchedules = useCallback(async (isRefresh = false) => {
     const token = authStore.token;
@@ -158,8 +160,19 @@ export default function MedicationScreen() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     setError('');
+    setReminderError('');
     try {
-      setSchedules(await getPatientMedicationSchedules(token));
+      const nextSchedules = await getPatientMedicationSchedules(token);
+      setSchedules(nextSchedules);
+      try {
+        await scheduleMedicationReminders(nextSchedules);
+      } catch (notificationError) {
+        setReminderError(
+          notificationError instanceof Error
+            ? notificationError.message
+            : 'Pengingat obat belum dapat diaktifkan.',
+        );
+      }
     } catch (requestError) {
       setError(
         requestError instanceof ApiError
@@ -241,6 +254,18 @@ export default function MedicationScreen() {
             </Text>
           </View>
         </View>
+
+        {reminderError ? (
+          <Text
+            style={{
+              ...typography.caption,
+              color: colors.warning,
+              marginTop: spacing.md,
+            }}
+          >
+            {reminderError}
+          </Text>
+        ) : null}
 
         <View style={{ marginTop: spacing.xl }}>
           {loading ? (

@@ -1,10 +1,10 @@
 import { authStore } from "@/services/AuthServices/authStore";
 import {
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-    useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  useFonts,
 } from "@expo-google-fonts/poppins";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect, useState } from "react";
