@@ -61,10 +61,6 @@ function formatTime(value) {
         <span aria-hidden="true">/</span>
         <span class="font-medium text-primary-dark">Detail pasien</span>
       </div>
-      <span class="inline-flex items-center gap-2 rounded-full border border-warning/25 bg-warning/5 px-3 py-1.5 text-sm font-medium text-[#946a16]">
-        <span class="size-1.5 rounded-full bg-warning" />
-        {{ isDemoPatient ? 'Profil demo · data terapi dummy' : 'Data terapi dummy · placeholder' }}
-      </span>
     </div>
 
     <PatientProfileHeader
