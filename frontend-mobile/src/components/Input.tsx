@@ -58,7 +58,10 @@ export const Input: React.FC<InputProps> = ({
         {isPassword && (
           <TouchableOpacity 
             onPress={() => setShowPassword(!showPassword)}
+            accessibilityLabel={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+            accessibilityRole="button"
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' }}
             activeOpacity={0.7}
           >
             {showPassword ? (
