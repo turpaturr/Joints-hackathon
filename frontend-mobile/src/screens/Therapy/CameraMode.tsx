@@ -3,13 +3,17 @@ import { authStore } from '@/services/AuthServices/authStore';
 import { ApiError } from '@/services/api';
 import {
   createTherapySession,
+  parseInstructionSteps,
+  type Movement,
+  type Prescription,
   type TherapySessionPayload,
 } from '@/services/therapy.service';
 import { colors, radius, spacing, typography } from '@/theme';
-import { ArrowLeft, CheckCircle, Video as VideoIcon } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, Repeat, Video as VideoIcon } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -34,7 +38,23 @@ function formatDuration(ms: number) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export function CameraMode({ onBack }: { onBack: () => void }) {
+export function CameraMode({
+  onBack,
+  movement,
+  prescription,
+}: {
+  onBack: () => void;
+  movement?: Movement | null;
+  prescription?: Prescription | null;
+}) {
+  const activeProgramName = movement?.namaGerakan || movement?.nama || PROGRAM_NAME;
+  const targetReps = prescription?.targetRepetisi ?? 10;
+  const steps = parseInstructionSteps(movement?.instruksi);
+  const imageUri = movement?.imageBase64
+    ? `data:${movement.imageMimeType || 'image/jpeg'};base64,${movement.imageBase64}`
+    : movement?.mediaUrl && !movement.mediaUrl.includes('youtube')
+      ? movement.mediaUrl
+      : null;
   const [sessionState, setSessionState] = useState<SessionState>('ready');
   const [elapsedMs, setElapsedMs] = useState(0);
   const [finalDuration, setFinalDuration] = useState(0);
@@ -115,13 +135,14 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
       if (!token) throw new Error('Sesi login berakhir.');
 
       const payload: TherapySessionPayload = {
-        programName: PROGRAM_NAME,
+        programName: activeProgramName,
         therapyType: 'CAMERA',
         estimatedAngle: 0,
         validRepetitions: 0,
         durationMs: duration,
         sampleCount: 0,
         performedAt: new Date(startTimeRef.current).toISOString(),
+        prescriptionId: prescription?.id,
       };
       pendingSessionRef.current = payload;
       await createTherapySession(payload, token);
@@ -211,8 +232,53 @@ export function CameraMode({ onBack }: { onBack: () => void }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={{ ...typography.h1, color: colors.textPrimary }}>{PROGRAM_NAME}</Text>
-        <Text style={styles.subtitle}>Rekaman visual terapi pergerakan leher</Text>
+        <View
+          style={{
+            backgroundColor: colors.surface,
+            borderRadius: radius.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+            padding: spacing.sm + 2,
+            marginBottom: spacing.md,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: 56, height: 56, borderRadius: radius.sm, backgroundColor: colors.bgBase }}
+                resizeMode="cover"
+              />
+            ) : null}
+
+            <View style={{ flex: 1 }}>
+              <Text style={{ ...typography.h2, color: colors.textPrimary }} numberOfLines={1}>
+                {activeProgramName}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 3,
+                    backgroundColor: colors.accentTeal + '15',
+                    paddingHorizontal: 6,
+                    paddingVertical: 1,
+                    borderRadius: radius.full,
+                  }}
+                >
+                  <Repeat size={10} color={colors.accentTeal} />
+                  <Text style={{ ...typography.caption, fontSize: 10, color: colors.accentTeal, fontWeight: '600' }}>
+                    Target: {targetReps} reps
+                  </Text>
+                </View>
+                <Text style={{ ...typography.caption, fontSize: 11, color: colors.textSecondary }}>
+                  Mode Kamera Visual
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
         <View style={styles.contentContainer}>
           

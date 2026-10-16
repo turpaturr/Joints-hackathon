@@ -4,15 +4,19 @@ import { ApiError } from '@/services/api';
 import { authStore } from '@/services/AuthServices/authStore';
 import {
   createTherapySession,
+  parseInstructionSteps,
+  type Movement,
+  type Prescription,
   type TherapySessionPayload,
 } from '@/services/therapy.service';
 import { colors, radius, spacing, typography } from '@/theme';
 import { estimateTherapyMetrics } from '@/utils/therapyMetrics';
-import { ArrowLeft, CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, ChevronDown, ChevronUp, Repeat } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -31,8 +35,25 @@ function formatDuration(ms: number) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export function GyroscopeMode({ onBack }: { onBack: () => void }) {
+export function GyroscopeMode({
+  onBack,
+  movement,
+  prescription,
+}: {
+  onBack: () => void;
+  movement?: Movement | null;
+  prescription?: Prescription | null;
+}) {
   const [sessionState, setSessionState] = useState<SessionState>('ready');
+  const [showSteps, setShowSteps] = useState(false);
+  const activeProgramName = movement?.namaGerakan || movement?.nama || PROGRAM_NAME;
+  const targetReps = prescription?.targetRepetisi ?? 10;
+  const steps = parseInstructionSteps(movement?.instruksi);
+  const imageUri = movement?.imageBase64
+    ? `data:${movement.imageMimeType || 'image/jpeg'};base64,${movement.imageBase64}`
+    : movement?.mediaUrl && !movement.mediaUrl.includes('youtube')
+      ? movement.mediaUrl
+      : null;
   const [elapsedMs, setElapsedMs] = useState(0);
   const [finalDuration, setFinalDuration] = useState(0);
   const [finalSampleCount, setFinalSampleCount] = useState(0);
@@ -81,13 +102,14 @@ export function GyroscopeMode({ onBack }: { onBack: () => void }) {
     const duration = Date.now() - startTimeRef.current;
     const metrics = estimateTherapyMetrics(samples);
     const payload: TherapySessionPayload = {
-      programName: PROGRAM_NAME,
+      programName: activeProgramName,
       therapyType: 'GYROSCOPE',
       estimatedAngle: metrics.estimatedAngle,
       validRepetitions: metrics.validRepetitions,
       durationMs: duration,
       sampleCount: samples.length,
       performedAt: new Date(startTimeRef.current).toISOString(),
+      prescriptionId: prescription?.id,
     };
 
     setFinalDuration(duration);
@@ -204,18 +226,80 @@ export function GyroscopeMode({ onBack }: { onBack: () => void }) {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={{ ...typography.h1, color: colors.textPrimary }}>
-          {PROGRAM_NAME}
-        </Text>
-        <Text
+        {/* ── Top Movement Header & Guide ── */}
+        <View
           style={{
-            ...typography.caption,
-            color: colors.textSecondary,
-            marginTop: spacing.xs,
+            backgroundColor: colors.surface,
+            borderRadius: radius.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+            padding: spacing.sm + 2,
+            marginBottom: spacing.md,
           }}
         >
-          Sesi terapi hari ini
-        </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: 56, height: 56, borderRadius: radius.sm, backgroundColor: colors.bgBase }}
+                resizeMode="cover"
+              />
+            ) : null}
+
+            <View style={{ flex: 1 }}>
+              <Text style={{ ...typography.h2, color: colors.textPrimary }} numberOfLines={1}>
+                {activeProgramName}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 3,
+                    backgroundColor: colors.primary + '15',
+                    paddingHorizontal: 6,
+                    paddingVertical: 1,
+                    borderRadius: radius.full,
+                  }}
+                >
+                  <Repeat size={10} color={colors.primary} />
+                  <Text style={{ ...typography.caption, fontSize: 10, color: colors.primary, fontWeight: '600' }}>
+                    Target: {targetReps} reps
+                  </Text>
+                </View>
+                <Text style={{ ...typography.caption, fontSize: 11, color: colors.textSecondary }}>
+                  Mode Sensor Gyro
+                </Text>
+              </View>
+            </View>
+
+            {steps.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setShowSteps((prev) => !prev)}
+                style={{
+                  padding: 6,
+                  borderRadius: radius.sm,
+                  backgroundColor: colors.bgBase,
+                }}
+              >
+                {showSteps ? <ChevronUp size={16} color={colors.textSecondary} /> : <ChevronDown size={16} color={colors.textSecondary} />}
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {showSteps && steps.length > 0 && (
+            <View style={{ marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border, gap: 6 }}>
+              <Text style={{ ...typography.caption, fontWeight: '600', color: colors.textPrimary }}>
+                Langkah Gerakan:
+              </Text>
+              {steps.map((st, idx) => (
+                <Text key={idx} style={{ ...typography.caption, fontSize: 12, color: colors.textSecondary }}>
+                  {idx + 1}. {st}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
 
         <View style={{ flex: 1, justifyContent: 'center' }}>
           {sessionState === 'ready' && <ReadyState />}

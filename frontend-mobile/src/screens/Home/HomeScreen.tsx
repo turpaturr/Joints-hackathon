@@ -1,18 +1,72 @@
 import { FeatureCard } from '@/components/FeatureCard';
 import { colors, radius, spacing, typography } from '@/theme';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import {
   Activity,
   History,
   MessageCircle,
   Pill,
 } from 'lucide-react-native';
+import { useCallback, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authStore } from '@/services/AuthServices/authStore';
+import {
+  calculateTherapyProgress,
+  getMyPrescriptions,
+  type Prescription,
+} from '@/services/therapy.service';
 import { TherapyProgressCard } from './components/TherapyProgressCard';
 
 export default function HomeScreen() {
+  const [activePrescription, setActivePrescription] = useState<Prescription | null>(null);
+  const [loadingPrescription, setLoadingPrescription] = useState(false);
+
+  const fetchPrescription = useCallback(async () => {
+    const token = authStore.token;
+    if (!token) return;
+    try {
+      setLoadingPrescription(true);
+      const list = await getMyPrescriptions(token);
+      if (list && list.length > 0) {
+        // Pick the most relevant prescription (e.g., ongoing, or latest)
+        const sorted = [...list].sort((a, b) => {
+          const tA = new Date(a.tanggalBerakhir || a.createdAt || 0).getTime();
+          const tB = new Date(b.tanggalBerakhir || b.createdAt || 0).getTime();
+          return tB - tA;
+        });
+        setActivePrescription(sorted[0]);
+      } else {
+        setActivePrescription(null);
+      }
+    } catch (err) {
+      console.warn('[HomeScreen] Failed to load prescriptions:', err);
+    } finally {
+      setLoadingPrescription(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPrescription();
+    }, [fetchPrescription]),
+  );
+
+  // Dynamic progress calculated from doctor's assigned therapy dates
+  const progress = calculateTherapyProgress(
+    activePrescription?.tanggalMulai,
+    activePrescription?.tanggalBerakhir,
+  );
+
+  const movementTitle =
+    activePrescription?.movement?.namaGerakan ||
+    activePrescription?.movement?.nama ||
+    (activePrescription ? 'Latihan Terapi' : 'Latihan Mandiri');
+
+  const frequencyLabel = activePrescription?.frekuensiPerHari
+    ? `${activePrescription.frekuensiPerHari}× sehari (${activePrescription.targetRepetisi ?? 10} rep)`
+    : 'Setiap hari';
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgBase }}>
       <ScrollView
@@ -78,16 +132,19 @@ export default function HomeScreen() {
           }}
         />
 
-        {/* ── Hero Card: Terapi Hari Ini ── */}
+        {/* ── Hero Card: Terapi Hari Ini (Dynamic Date Progression) ── */}
         <View style={{ marginTop: spacing.xl }}>
           <TherapyProgressCard
-            title="Latihan Lutut"
-            currentDay={3}
-            totalDays={42}
-            frequency="3× minggu"
+            title={movementTitle}
+            currentDay={activePrescription ? progress.currentDay : 1}
+            totalDays={activePrescription ? progress.totalDays : 14}
+            percent={activePrescription ? progress.percent : 7}
+            frequency={frequencyLabel}
+            dateRange={activePrescription ? progress.dateRangeLabel : 'Periode Terapi'}
+            hasPrescription={!!activePrescription}
+            onPress={() => router.push('/therapy')}
           />
         </View>
-
 
         {/* ── Section: Aksi Cepat ── */}
         <Text
