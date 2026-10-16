@@ -5,6 +5,7 @@ import PageHeader from '../../components/ui/PageHeader.vue'
 import PatientConnectionModal from '../../components/patients/PatientConnectionModal.vue'
 import PatientDetailsModal from '../../components/patients/PatientDetailsModal.vue'
 import PatientTable from '../../components/patients/PatientTable.vue'
+import PatientTextModal from '../../components/patients/PatientTextModal.vue'
 import { monitoringData, refreshMonitoringData } from '../../composables/useMonitoringData'
 import { getSession } from '../../services/auth.api'
 import { redeemPatientCode } from '../../services/connection.api'
@@ -19,13 +20,22 @@ const showAddPatientModal = ref(false)
 const selectedPatient = ref(null)
 const savingPatient = ref(false)
 const patientError = ref('')
+const longTextModal = ref(null)
 const session = getSession()
 
 const filteredPatients = computed(() => {
   const query = search.value.trim().toLowerCase()
   if (!query) return monitoringData.patients
   return monitoringData.patients.filter((patient) =>
-    [patient.namaLengkap, patient.user?.email, patient.kondisiMedis, patient.nomorTelepon]
+    [
+      patient.namaLengkap,
+      patient.user?.email,
+      patient.kondisiMedis,
+      patient.riwayatPenyakit,
+      patient.alergi,
+      patient.lokasiKeluhan,
+      patient.nomorTelepon,
+    ]
       .some((value) => value?.toLowerCase().includes(query)),
   )
 })
@@ -123,11 +133,7 @@ async function savePatientData(patientData) {
               aria-label="Cari pasien"
             >
           </label>
-          <button
-            class="min-h-11 shrink-0 rounded-control bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark"
-            type="button"
-            @click="openAddPatientModal"
-          >
+          <button class="min-h-11 shrink-0 rounded-control bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark" type="button" @click="openAddPatientModal">
             Tambah Pasien
           </button>
         </div>
@@ -160,9 +166,10 @@ async function savePatientData(patientData) {
     <PatientTable
       v-else
       :patients="filteredPatients"
+      @open-text="longTextModal = $event"
       @select="openPatientModal"
     />
-
+    <PatientTextModal :modal="longTextModal" @close="longTextModal = null" />
     <PatientDetailsModal
       v-if="selectedPatient"
       :patient="selectedPatient"

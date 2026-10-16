@@ -6,18 +6,23 @@ import PageHeader from '../../components/ui/PageHeader.vue'
 import SurfaceCard from '../../components/ui/SurfaceCard.vue'
 
 const patientFilter = ref('')
+const therapyTypeFilter = ref('')
+const getTherapyType = (session) => session.therapyType || 'GYROSCOPE'
+const therapyTypeLabel = (session) => getTherapyType(session) === 'CAMERA' ? 'Kamera' : 'Gyroscope'
 const filteredSessions = computed(() => {
   return monitoringData.sessions
     .filter((session) => !patientFilter.value || session.patientId === patientFilter.value)
+    .filter((session) => !therapyTypeFilter.value || getTherapyType(session) === therapyTypeFilter.value)
     .sort((a, b) => new Date(b.performedAt) - new Date(a.performedAt))
 })
+const gyroscopeSessions = computed(() => filteredSessions.value.filter((session) => getTherapyType(session) === 'GYROSCOPE'))
 const averageAngle = computed(() => {
-  if (!filteredSessions.value.length) return '—'
-  return `${Math.round(filteredSessions.value.reduce((sum, session) => sum + session.estimatedAngle, 0) / filteredSessions.value.length)}°`
+  if (!gyroscopeSessions.value.length) return '—'
+  return `${Math.round(gyroscopeSessions.value.reduce((sum, session) => sum + session.estimatedAngle, 0) / gyroscopeSessions.value.length)}°`
 })
 const averageReps = computed(() => {
-  if (!filteredSessions.value.length) return '—'
-  return Math.round(filteredSessions.value.reduce((sum, session) => sum + session.validRepetitions, 0) / filteredSessions.value.length)
+  if (!gyroscopeSessions.value.length) return '—'
+  return Math.round(gyroscopeSessions.value.reduce((sum, session) => sum + session.validRepetitions, 0) / gyroscopeSessions.value.length)
 })
 </script>
 
@@ -30,6 +35,14 @@ const averageReps = computed(() => {
           <select v-model="patientFilter" class="min-h-11 rounded-control border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15">
             <option value="">Semua pasien</option>
             <option v-for="patient in monitoringData.patients" :key="patient.id" :value="patient.id">{{ patient.namaLengkap }}</option>
+          </select>
+        </label>
+        <label class="grid min-h-11 w-full gap-1 text-xs font-medium text-muted sm:w-44">
+          Metode
+          <select v-model="therapyTypeFilter" class="min-h-11 rounded-control border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15">
+            <option value="">Semua metode</option>
+            <option value="GYROSCOPE">Gyroscope</option>
+            <option value="CAMERA">Kamera</option>
           </select>
         </label>
       </template>
@@ -73,6 +86,7 @@ const averageReps = computed(() => {
             <tr class="border-b border-line text-xs font-medium text-muted">
               <th class="px-3 py-3">Pasien</th>
               <th class="px-3 py-3">Program</th>
+              <th class="px-3 py-3">Metode</th>
               <th class="px-3 py-3">Repetisi valid</th>
               <th class="px-3 py-3">Estimasi sudut</th>
               <th class="px-3 py-3">Durasi</th>
@@ -83,6 +97,7 @@ const averageReps = computed(() => {
             <tr v-for="session in filteredSessions" :key="session.id" class="border-b border-line/70 text-sm last:border-0">
               <td class="px-3 py-3 font-medium text-ink">{{ monitoringData.patients.find((patient) => patient.id === session.patientId)?.namaLengkap || 'Pasien' }}</td>
               <td class="px-3 py-3 text-ink">{{ session.programName }}</td>
+              <td class="px-3 py-3 text-ink">{{ therapyTypeLabel(session) }}</td>
               <td class="px-3 py-3 text-ink">{{ session.validRepetitions }}</td>
               <td class="px-3 py-3 text-ink">{{ session.estimatedAngle }}°</td>
               <td class="px-3 py-3 text-ink">{{ (session.durationMs / 1000).toFixed(1) }} detik</td>

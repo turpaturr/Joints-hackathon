@@ -17,6 +17,8 @@ let clockInterval
 const navItems = [
   { label: 'Dashboard', name: 'monitoring-overview', icon: 'dashboard' },
   { label: 'Pasien', name: 'monitoring-patients', icon: 'patients' },
+  { label: 'Konsultasi', name: 'monitoring-consultations', icon: 'consultations' },
+  { label: 'Jadwal obat', name: 'monitoring-medications', icon: 'medications' },
   { label: 'Gerakan terapi', name: 'monitoring-movements', icon: 'therapy' },
   { label: 'Tugaskan terapi', name: 'monitoring-prescriptions', icon: 'therapy' },
   { label: 'Riwayat terapi', name: 'monitoring-reports', icon: 'history' },
@@ -33,6 +35,10 @@ const deviceDate = computed(() =>
   new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }).format(localNow.value),
 )
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+const deviceLocation = computed(() => {
+  const zoneCity = timeZone.split('/').at(-1)?.replaceAll('_', ' ')
+  return zoneCity || 'Lokasi perangkat'
+})
 
 function closeOverlays() {
   mobileMenuOpen.value = false
@@ -145,6 +151,13 @@ onUnmounted(() => {
               <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
               <path d="M3 3v5h5m4-1v5l3 2" />
             </template>
+            <template v-else-if="item.icon === 'medications'">
+              <path d="m10.5 3.5 10 10a4.24 4.24 0 0 1-6 6l-10-10a4.24 4.24 0 0 1 6-6Z" />
+              <path d="m8 14 6-6" />
+            </template>
+            <template v-else-if="item.icon === 'consultations'">
+              <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3H13a8.5 8.5 0 0 1 8 8v.5Z" />
+            </template>
             <template v-else>
               <circle cx="12" cy="8" r="4" />
               <path d="M4 21a8 8 0 0 1 16 0" />
@@ -173,6 +186,16 @@ onUnmounted(() => {
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4">
+          <div class="group hidden origin-right items-center gap-2.5 rounded-panel border-r border-line pr-4 transition duration-200 hover:scale-110 hover:border-line hover:bg-surface hover:px-3 hover:py-2 hover:shadow-[var(--connect-shadow-card)] md:flex" aria-label="Waktu lokal perangkat">
+            <svg class="size-4 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
+            <span class="grid gap-0.5">
+              <span class="text-xs font-semibold leading-4 text-primary-dark transition group-hover:text-sm">{{ deviceLocation }} <span class="font-normal text-muted">· {{ deviceTime }}</span></span>
+              <span class="text-[10px] leading-3 text-muted transition group-hover:text-xs">{{ deviceDate }} · {{ timeZone }}</span>
+            </span>
+          </div>
           <div class="relative">
             <button
               class="flex min-h-11 items-center gap-2 rounded-panel px-1.5 text-left hover:bg-surface sm:gap-3 sm:px-2"

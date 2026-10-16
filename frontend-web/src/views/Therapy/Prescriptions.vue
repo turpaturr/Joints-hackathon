@@ -20,6 +20,12 @@ const prescriptionForm = reactive({
   tanggalMulai: new Date().toISOString().slice(0, 10),
   tanggalBerakhir: '',
 })
+const hariMulai = computed(() => {
+  if (!prescriptionForm.tanggalMulai) return ''
+  return new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(
+    new Date(`${prescriptionForm.tanggalMulai}T12:00:00`),
+  )
+})
 const sortedPrescriptions = computed(() =>
   [...monitoringData.prescriptions].sort(
     (a, b) => new Date(b.createdAt || b.tanggalMulai) - new Date(a.createdAt || a.tanggalMulai),
@@ -34,6 +40,19 @@ function openPrescriptionModal() {
 function closePrescriptionModal() {
   if (busy.value) return
   showPrescriptionModal.value = false
+}
+
+function formatStartDay(date) {
+  if (!date) return 'Hari mulai belum ditentukan'
+  const dateValue = typeof date === 'string' && date.length >= 10
+    ? new Date(`${date.slice(0, 10)}T12:00:00`)
+    : new Date(date)
+  return new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(dateValue)
 }
 
 async function assignMovementToPatient() {
@@ -106,6 +125,7 @@ async function assignMovementToPatient() {
               <th class="px-3 py-3">Gerakan</th>
               <th class="px-3 py-3">Target</th>
               <th class="px-3 py-3">Frekuensi</th>
+              <th class="px-3 py-3">Hari mulai</th>
               <th class="px-3 py-3">Periode terapi</th>
             </tr>
           </thead>
@@ -117,6 +137,7 @@ async function assignMovementToPatient() {
               <td class="px-3 py-3">{{ plan.movement?.namaGerakan || 'Gerakan terapi' }}</td>
               <td class="whitespace-nowrap px-3 py-3">{{ plan.targetRepetisi }} repetisi</td>
               <td class="whitespace-nowrap px-3 py-3">{{ plan.frekuensiPerHari }}× sehari</td>
+              <td class="whitespace-nowrap px-3 py-3 capitalize">{{ formatStartDay(plan.tanggalMulai) }}</td>
               <td class="whitespace-nowrap px-3 py-3">
                 {{ new Date(plan.tanggalMulai).toLocaleDateString('id-ID') }} – {{ new Date(plan.tanggalBerakhir).toLocaleDateString('id-ID') }}
               </td>
@@ -162,6 +183,10 @@ async function assignMovementToPatient() {
           <label class="grid gap-2 text-sm font-medium text-ink">
             Tanggal mulai
             <input v-model="prescriptionForm.tanggalMulai" class="min-h-11 rounded-control border border-line bg-surface px-3 text-sm font-normal focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" type="date" required />
+          </label>
+          <label class="grid gap-2 text-sm font-medium text-ink">
+            Hari mulai
+            <input :value="hariMulai || 'Pilih tanggal mulai'" class="min-h-11 rounded-control border border-line bg-base px-3 text-sm font-normal text-muted" type="text" readonly aria-readonly="true" />
           </label>
           <label class="grid gap-2 text-sm font-medium text-ink">
             Tanggal berakhir

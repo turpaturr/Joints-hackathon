@@ -37,8 +37,11 @@ export interface Prescription {
   }[];
 }
 
+export type TherapyType = 'GYROSCOPE' | 'CAMERA';
+
 export interface TherapySessionPayload {
   programName: string;
+  therapyType: TherapyType;
   estimatedAngle: number;
   validRepetitions: number;
   durationMs: number;

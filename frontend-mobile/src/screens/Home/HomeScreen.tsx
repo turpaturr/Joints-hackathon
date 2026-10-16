@@ -124,7 +124,7 @@ export default function HomeScreen() {
           <FeatureCard
             icon={MessageCircle}
             title="Keluhan ke Dokter"
-            description="Ngobrol dulu sebelum konsultasi"
+            description="Buat dan pantau laporan konsultasi"
             onPress={() => router.push('/consult')}
           />
         </View>
